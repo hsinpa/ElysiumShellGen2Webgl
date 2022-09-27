@@ -6,7 +6,7 @@ window.addEventListener("load", function(event) {
 
   if (main_canvas != null) {
     let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement);
-    babylonApp.Render();
+    // babylonApp.Render();
   }
 
 });
