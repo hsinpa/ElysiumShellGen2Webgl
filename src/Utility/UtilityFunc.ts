@@ -58,3 +58,7 @@ export function DoDelayAction(time : number) : Promise<void> {
     });
 
 }
+
+export function Clamp(value : number, min : number, max : number) {
+    return Math.min(Math.max(value, min), max);
+  };
