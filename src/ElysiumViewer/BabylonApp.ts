@@ -1,5 +1,5 @@
 import "babylonjs-loaders";
-import {Engine, Scene, HemisphericLight, Vector3, ArcRotateCamera, SceneLoader, ISceneLoaderProgressEvent, AbstractMesh} from 'babylonjs';
+import {Engine, Scene, HemisphericLight, Vector3, ArcRotateCamera, SceneLoader, ISceneLoaderProgressEvent, AbstractMesh, GlowLayer, Vector4, Color4} from 'babylonjs';
 import WebglUtility from '../Utility/WebglUtility';
 import { IMode, ModeEnum, FaceCloseUpLerpStruct, FreeStyleLerpStruct } from "./Mode/IMode";
 import FreeStyleMode from "./Mode/FreeStyleMode";
@@ -34,10 +34,12 @@ export default class BabylonApp {
         this.m_engine = new Engine(this.m_canvasDOM, true, {
             preserveDrawingBuffer: true 
         });    
-        
+
         this.m_scene = new Scene(this.m_engine);
 
+
         this.PrepareBasicScene(this.m_scene);
+        //this.PrepareTestScene(this.m_scene);
 
         this.m_engine.runRenderLoop(this.RenderPipeline.bind(this));
 
@@ -60,7 +62,19 @@ export default class BabylonApp {
         }
     }
 
+    private async PrepareTestScene(scene: Scene) {
+        let glbPath = "Assets/0915_IVD_1024.glb";
+
+        await SceneLoader.AppendAsync("Assets/", "0915_IVD_1024.glb", scene).then(function (scene) {
+            // do something with the scene
+            var gl = new GlowLayer("glow", scene);
+            gl.intensity = 2;
+        });
+    }
+
     private async PrepareBasicScene(scene: Scene) {
+
+        scene.clearColor = new Color4(0.38, 0.43, 0.43,  1.0);
         const cam_position = new Vector3(0, 0.8, 0);
         const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 3, cam_position, scene);
 
@@ -76,6 +90,10 @@ export default class BabylonApp {
 
         if (glbMesh != null) {
             glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
+
+            var gl = new GlowLayer("glow", scene);
+            gl.intensity = 2.0;
+
             this.PrepareMode(camera, glbMesh);
             this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
         }
@@ -90,15 +108,28 @@ export default class BabylonApp {
         });
 
         // for (let i = 0 ; i < glbMesh.meshes.length; i++) {
-        //     console.log(glbMesh.meshes[i].name);
+        //     if (glbMesh.meshes[i].material !== undefined) {
+        //         console.log(glbMesh.meshes[i].material?.name);
+        //         console.log(glbMesh.meshes[i].material?.getClassName());
+
+        //         let textures = glbMesh.meshes[i].material?.getActiveTextures();
+        //         if (textures == null) continue;
+
+        //         let textureLength = textures.length;
+        //         for (let j = 0; j < textureLength; j++) {
+        //             console.log(textures[j].name);
+        //             console.log(textures[j].metadata);
+        //         }
+        //     }
+        //         console.log(glbMesh.meshes[i].material?.getActiveTextures);
         // }
 
         return glbMesh.meshes.find(x=> x.name != "__root__");
     }
 
     private PrepareMode(camera: ArcRotateCamera, mainCharMesh: AbstractMesh) {
-        this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, camera, FreeStyleLerpStruct);
-        this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, camera, FaceCloseUpLerpStruct);
+        this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, camera, mainCharMesh, FreeStyleLerpStruct);
+        this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, camera, mainCharMesh, FaceCloseUpLerpStruct);
     }
 
     private RenderPipeline() {
