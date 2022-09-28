@@ -1,7 +1,7 @@
 import "babylonjs-loaders";
 import {Engine, Scene, HemisphericLight, Vector3, ArcRotateCamera, SceneLoader, ISceneLoaderProgressEvent, AbstractMesh} from 'babylonjs';
 import WebglUtility from '../Utility/WebglUtility';
-import { IMode, ModeEnum } from "./Mode/IMode";
+import { IMode, ModeEnum, FaceCloseUpLerpStruct, FreeStyleLerpStruct } from "./Mode/IMode";
 import FreeStyleMode from "./Mode/FreeStyleMode";
 import CloseUpMode from "./Mode/CloseUpMode";
 import EventSystem from "../Utility/EventSystem";
@@ -19,6 +19,10 @@ export default class BabylonApp {
     private m_free_style_mode: FreeStyleMode;
     private m_close_up_mode: CloseUpMode;
     private m_eventSystem : EventSystem;
+
+    public get Mode() {
+        return this.m_current_mode;
+    }
 
     constructor(canvasDOM: HTMLCanvasElement, eventSystem: EventSystem) {
         let self = this;
@@ -93,8 +97,8 @@ export default class BabylonApp {
     }
 
     private PrepareMode(camera: ArcRotateCamera, mainCharMesh: AbstractMesh) {
-        this.m_free_style_mode = new FreeStyleMode("free_style", camera, );
-        this.m_close_up_mode = new CloseUpMode("face_side", camera, );
+        this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, camera, FreeStyleLerpStruct);
+        this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, camera, FaceCloseUpLerpStruct);
     }
 
     private RenderPipeline() {
