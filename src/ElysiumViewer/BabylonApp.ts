@@ -100,7 +100,7 @@ export default class BabylonApp {
     }
 
     private async LoadTestGLBFile(p_scene: Scene) {
-        let glbPath = "./assets/0915_IVD_1024.glb";
+        let glbPath = "./Assets/0915_IVD_1024.glb";
         // let glbData64 = await this.m_webUti.GetGLBFile(glbPath);
         // var base64_model_content = "data:;base64," + glbData64;
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
