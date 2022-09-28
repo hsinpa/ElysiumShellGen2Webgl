@@ -1,5 +1,13 @@
-import "babylonjs-loaders";
-import {Engine, Scene, HemisphericLight, Vector3, ArcRotateCamera, SceneLoader, ISceneLoaderProgressEvent, AbstractMesh, GlowLayer, Vector4, Color4} from 'babylonjs';
+import  "@babylonjs/loaders/glTF";
+import {Engine} from '@babylonjs/core/Engines';
+import {Scene} from '@babylonjs/core/scene';
+import {HemisphericLight} from '@babylonjs/core/Lights';
+import {ArcRotateCamera} from '@babylonjs/core/Cameras';
+import { SceneLoader , ISceneLoaderProgressEvent} from '@babylonjs/core/Loading';
+import { GlowLayer} from '@babylonjs/core/Layers';
+import {Vector3, Color4} from '@babylonjs/core/Maths';
+import { AbstractMesh } from "@babylonjs/core/Meshes";
+
 import WebglUtility from '../Utility/WebglUtility';
 import { IMode, ModeEnum, FaceCloseUpLerpStruct, FreeStyleLerpStruct } from "./Mode/IMode";
 import FreeStyleMode from "./Mode/FreeStyleMode";

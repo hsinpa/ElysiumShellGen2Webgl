@@ -4,7 +4,6 @@ import {EventTag} from './ElysiumViewer/GeneralStaticFlag';
 
 import EventSystem from './Utility/EventSystem';
 import { ModeEnum } from './ElysiumViewer/Mode/IMode';
-import { Nullable } from 'babylonjs';
 
 window.addEventListener("load", function(event) {
   let event_system = new EventSystem();

@@ -1,5 +1,6 @@
-import { ArcRotateCamera, Vector3 } from "babylonjs";
-import { ThinSprite } from "babylonjs/Sprites/thinSprite";
+import {ArcRotateCamera} from '@babylonjs/core/Cameras';
+import {Vector3} from '@babylonjs/core/Maths';
+
 import { Lerp } from "../../Utility/UtilityFunc";
 
 export interface IMode {

@@ -11,10 +11,7 @@
     "esModuleInterop": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "strictPropertyInitialization": false,
-    "types": [
-      "babylonjs"
-    ]
+    "strictPropertyInitialization": false
   },
   "include": ["src"]
 }

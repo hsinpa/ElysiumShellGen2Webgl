@@ -1,4 +1,7 @@
-import { AbstractMesh, ArcRotateCamera, Quaternion, Vector3 } from "babylonjs";
+import { AbstractMesh } from "@babylonjs/core/Meshes";
+import {ArcRotateCamera} from '@babylonjs/core/Cameras';
+import {Vector3, Quaternion} from '@babylonjs/core/Maths';
+
 import {Lerp, Clamp} from "../../Utility/UtilityFunc";
 import { IMode, ModeLerpHelper, ModeLerpStruct, ModeEnum } from "./IMode";
 
