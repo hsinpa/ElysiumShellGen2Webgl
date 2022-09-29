@@ -72,8 +72,14 @@ export class ModeLerpHelper {
         p_camera.beta = Lerp(p_camera.beta, this.m_lerpStruct.lerp_beta, 0.1);
         p_camera.radius = Lerp(p_camera.radius, this.m_lerpStruct.lerp_radius, 0.1);
         
-        let diff  = Math.abs(this.m_lerpStruct.lerp_alpha - p_camera.alpha);
-        this.m_lerpComplete = diff < 0.005; 
+        let alpha_diff  = Math.abs(this.m_lerpStruct.lerp_alpha - p_camera.alpha);
+        let beta_diff  = Math.abs(this.m_lerpStruct.lerp_beta - p_camera.beta);
+        let radius_diff  = Math.abs(this.m_lerpStruct.lerp_radius - p_camera.radius);
+
+        let threshold = 0.005;
+        this.m_lerpComplete = alpha_diff < threshold && 
+                            beta_diff < threshold && 
+                            radius_diff < threshold; 
 
         return this.m_lerpComplete;
     }
