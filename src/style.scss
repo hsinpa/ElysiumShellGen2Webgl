@@ -27,3 +27,28 @@ html, body {
     filter: invert(27%) sepia(51%) saturate(1878%) hue-rotate(146deg) brightness(104%) contrast(97%);
   }
 }
+
+#animation_dropdown {
+  position: fixed;
+  top:1rem;
+  left:1rem;
+  height: 1rem;
+
+  option {
+    background: #323741;
+    color: #9ba9ca;
+    height: 3rem;
+    line-height: 20px;
+
+  }
+
+  select {
+    padding: 0.3rem 0.3rem;
+
+    background: #2a2f3b;
+    color: white;
+    border:none;
+    outline:none;
+  
+  }
+}
