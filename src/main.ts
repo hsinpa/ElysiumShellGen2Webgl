@@ -9,9 +9,6 @@ window.addEventListener("load", function(event) {
   let event_system = new EventSystem();
 
   let babylonApp = CreateBabylonApp(event_system);
-  
-  if (babylonApp != null)
-    SetButtonEvent(babylonApp);
 });
 
 let CreateBabylonApp = function(p_eventSystem: EventSystem) {
@@ -21,6 +18,9 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
     let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement, p_eventSystem);
 
     p_eventSystem.ListenToEvent(EventTag.BabylonAppReady, () => {
+      SetDropdownContent(babylonApp);
+      SetButtonEvent(babylonApp);
+  
       babylonApp.SetMode(ModeEnum.FreeStyle);
     });
 
@@ -40,4 +40,15 @@ let SetButtonEvent = function(app: BabylonApp) {
       app.SetMode(nextMode);
     });
   }
+}
+
+let SetDropdownContent = function(app: BabylonApp) {
+  let dropdown_select_dom = document.querySelector("#animation_dropdown select") as HTMLOptionElement;
+
+  dropdown_select_dom?.addEventListener("change", (v) => { 
+    console.log(dropdown_select_dom.value);
+
+    app.LoadAnimation(dropdown_select_dom.value, app.CharacterMesh);
+  });
+
 }

@@ -17,6 +17,7 @@ import EventSystem from "../Utility/EventSystem";
 import {EventTag} from "./GeneralStaticFlag";
 import { Dictionary } from "typescript-collections";
 import AnimAssetManager from "./AnimAssetManager";
+import { AnimationPropertiesOverride } from "@babylonjs/core/Animations/animationPropertiesOverride";
 
 export default class BabylonApp {
 
@@ -31,9 +32,14 @@ export default class BabylonApp {
     private m_close_up_mode: CloseUpMode;
     private m_eventSystem : EventSystem;
     private m_animAssetManager : AnimAssetManager;
+    private m_mainCharMesh: AbstractMesh
 
     public get Mode() {
         return this.m_current_mode;
+    }
+
+    public get CharacterMesh() {
+        return this.m_mainCharMesh;
     }
 
     constructor(canvasDOM: HTMLCanvasElement, eventSystem: EventSystem) {
@@ -74,14 +80,20 @@ export default class BabylonApp {
         }
     }
 
-    private async PrepareTestScene(scene: Scene) {
-        let glbPath = "assets/0915_IVD_1024.glb";
+    public async LoadAnimation(anime_id: string, mesh: AbstractMesh) {
 
-        await SceneLoader.AppendAsync("assets/", "0915_IVD_1024.glb", scene).then(function (scene) {
-            // do something with the scene
-            var gl = new GlowLayer("glow", scene);
-            gl.intensity = 2;
-        });
+        let animPath = "./assets/"+anime_id;
+
+        await this.m_animAssetManager.LoadAnimation(anime_id, animPath);
+
+        let target_anime_group = this.m_animAssetManager.GetAnimationAsset(anime_id);
+
+        if (target_anime_group == null)  {
+            console.log("Load animation fail => anime group is not yet load");
+            return;
+        }
+
+        this.m_animAssetManager.AnimeGroupTransfer(mesh, target_anime_group, anime_id + "-agroup");
     }
 
     private async PrepareBasicScene(scene: Scene) {
@@ -98,7 +110,7 @@ export default class BabylonApp {
 
         const light = new HemisphericLight("light", new Vector3(1, 1, 0), scene);
 
-        let glbMesh = await this.LoadTestGLBFile(this.m_scene);
+        let glbMesh = await this.LoadGLBFile(this.m_scene);
 
         if (glbMesh != null) {
            glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
@@ -111,19 +123,24 @@ export default class BabylonApp {
         }
     }
 
-    private async LoadTestGLBFile(p_scene: Scene) {
+    private async LoadGLBFile(p_scene: Scene) {
+        //Load animation
+        let animPath = "./assets/anime@idle.glb";
+        await this.m_animAssetManager.LoadAnimation("anim@idle", animPath);
+
+        let running = this.m_animAssetManager.GetAnimationAsset("anim@idle");
+        let targetAnimGroup = running;
+
+        //Load mesh
         let glbPath = "./assets/GDN-H0418-B0103-A0116-L0113-x2048.glb";
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
             console.log(`GLB Load ${progressEvent.loaded}, Total ${progressEvent.total}`);
         });
 
-        let animPath = "./assets/Standing Idle_Unity_x2.5_v2.glb";
-
-        await this.m_animAssetManager.LoadAnimation("anim@running", animPath);
-
-        let running = this.m_animAssetManager.GetAnimationAsset("anim@running");
-        console.log(running);
-        let targetAnimGroup = running;
+        p_scene.animationPropertiesOverride = new AnimationPropertiesOverride();
+        p_scene.animationPropertiesOverride.enableBlending = true;
+        p_scene.animationPropertiesOverride.blendingSpeed = 0.1;
+        p_scene.animationPropertiesOverride.loopMode = 1;
 
         let glbCharMesh = glbMesh.meshes.find(x=> x.name != "__root__");
         if (glbCharMesh != null && targetAnimGroup != null) {
@@ -133,9 +150,12 @@ export default class BabylonApp {
         return glbCharMesh;
     }
 
+    
+
     private PrepareMode(camera: ArcRotateCamera, mainCharMesh: AbstractMesh) {
         this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, camera, mainCharMesh, FreeStyleLerpStruct);
         this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, camera, mainCharMesh, FaceCloseUpLerpStruct);
+        this.m_mainCharMesh = mainCharMesh;
     }
 
     private RenderPipeline() {
