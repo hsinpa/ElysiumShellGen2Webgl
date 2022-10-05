@@ -15,9 +15,9 @@ import FreeStyleMode from "./Mode/FreeStyleMode";
 import CloseUpMode from "./Mode/CloseUpMode";
 import EventSystem from "../Utility/EventSystem";
 import {EventTag} from "./GeneralStaticFlag";
-import { Dictionary } from "typescript-collections";
 import AnimAssetManager from "./AnimAssetManager";
 import { AnimationPropertiesOverride } from "@babylonjs/core/Animations/animationPropertiesOverride";
+import { HDRCubeTexture } from "@babylonjs/core/Materials/Textures";
 
 export default class BabylonApp {
 
@@ -57,6 +57,8 @@ export default class BabylonApp {
         this.m_animAssetManager = new AnimAssetManager(this.m_scene);
 
         this.PrepareBasicScene(this.m_scene);
+        this.LoadEnvDDS(this.m_scene);
+
         //this.PrepareTestScene(this.m_scene);
 
         this.m_engine.runRenderLoop(this.RenderPipeline.bind(this));
@@ -121,6 +123,11 @@ export default class BabylonApp {
             this.PrepareMode(camera, glbMesh);
             this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
         }
+    }
+
+    private LoadEnvDDS(p_scene: Scene) {
+        let hdrTexture = new HDRCubeTexture("./textures/adams_place_bridge_512_blur.hdr", p_scene,128, false, true, false, true);
+        p_scene.environmentTexture = hdrTexture;
     }
 
     private async LoadGLBFile(p_scene: Scene) {
