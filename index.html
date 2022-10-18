@@ -4,21 +4,45 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Elysium Viewer</title>
   </head>
   <body>
+    <!-- <div id="loading_ui">
+      <div class="load_container">
+        <span>0%</span>
+        <div class="load_bar">
+        </div>
+      </div>
+    </div> -->
+    
+    <nav class="contral_bar_canvas">
+      <div class="contral_bar">
+        <img id="ctrl_mode_change" src="./textures/icon/menu.svg">
 
-    <nav class="contral_bar">
-      <img id="ctrl_mode_change" src="./Sprite/action_state_btn.svg">
+        <div class="control_bar_expand">
+          <hr>
+          <img id="ctrl_animation_change" src="./textures/icon/person.svg">
+
+          <div class="animation_container">
+            <span class="selected" data-value="anime@idle.glb">IDLE</span>
+            <span data-value="anime@running.glb">RUNNING</span>
+            <span data-value="anime@dance.glb">DANCE</span>    
+          </div>
+
+          <img id="ctrl_play_change" src="./textures/icon/play.svg">
+          <img id="ctrl_refresh_change" src="./textures/icon/refresh.svg">
+        </div>
+
+      </div>
     </nav>
 
-    <div id="animation_dropdown">
+    <!-- <div id="animation_dropdown">
       <select name="animation_box">
         <option value="anime@idle.glb">Idle</option>
         <option value="anime@running.glb">Running</option>
         <option value="anime@dance.glb">Dance</option>
       </select>
-    </div>
+    </div> -->
 
     <canvas id="main_app"></canvas>
     <script type="module" src="/src/main.ts"></script>

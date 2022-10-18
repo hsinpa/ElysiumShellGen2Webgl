@@ -27,9 +27,9 @@ export interface ModeLerpStruct {
 
 export let FreeStyleLerpStruct : ModeLerpStruct = {
     lerp_target: new Vector3(0, 2.3,0),
-    lerp_alpha: Math.PI / 2.5,
-    lerp_beta: Math.PI * 0.38,
-    lerp_radius: 5,
+    lerp_alpha: Math.PI / 2.9,
+    lerp_beta: Math.PI * 0.35,
+    lerp_radius: 5.5,
 
     max_camera_radius: 10,
     min_camera_radius: 2.8,

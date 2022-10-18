@@ -21,6 +21,9 @@ import EventSystem from "../Utility/EventSystem";
 import {EventTag, TexturePath, MaterialParameters} from "./GeneralStaticFlag";
 import AnimAssetManager from "./AnimAssetManager";
 import {BackgroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
+import { NodeMaterial } from "@babylonjs/core/Materials/Node/nodeMaterial";
+import "@babylonjs/core/Materials/Node/Blocks";
+import { TextureBlock } from "@babylonjs/core/Materials/Node/Blocks";
 
 export default class BabylonApp {
 
@@ -106,6 +109,7 @@ export default class BabylonApp {
         const self = this;
 
         const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, Vector3.Zero(), bg_scene);
+        
         Effect.ShadersStore['BackgroundFragmentShader'] = BackgroundPostProcessingFrag;
         this.m_postprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, camera);
         
@@ -123,6 +127,7 @@ export default class BabylonApp {
 
     private async SetFrontScene(scene: Scene) {
         scene.autoClear = false;
+        let engine = scene.getEngine();
         //scene.clearColor = new Color4(0.38, 0.43, 0.43,  1.0);
         const cam_position = new Vector3(0, 1.8, 0);
         const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, cam_position, scene);
@@ -133,9 +138,9 @@ export default class BabylonApp {
         camera.maxZ = 20;
         camera.minZ = 0.3;
 
-        const light = new DirectionalLight("light", new Vector3(-1, -3, 1), scene);
+        const light = new DirectionalLight("light", new Vector3(-2, -2.1, -1), scene);
         light.position = new Vector3(3, 9, 3);
-
+        light.intensity = 3;
         //Shadow 
         var shadowMapper = new ShadowGenerator(1024, light);
 
@@ -186,6 +191,8 @@ export default class BabylonApp {
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
             console.log(`GLB Load ${progressEvent.loaded}, Total ${progressEvent.total}`);
         });
+
+        console.log(glbMesh);
 
         p_scene.animationPropertiesOverride = new AnimationPropertiesOverride();
         p_scene.animationPropertiesOverride.enableBlending = true;
