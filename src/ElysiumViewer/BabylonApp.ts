@@ -207,8 +207,6 @@ export default class BabylonApp {
         return glbCharMesh;
     }
 
-    
-
     private PrepareMode(camera: ArcRotateCamera, mainCharMesh: AbstractMesh) {
         this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, camera, mainCharMesh, FreeStyleLerpStruct);
         this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, camera, mainCharMesh, FaceCloseUpLerpStruct);

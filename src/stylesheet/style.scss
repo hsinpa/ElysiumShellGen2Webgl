@@ -27,7 +27,7 @@ html, body {
 
   .contral_bar {
     padding-top:2rem;
-    padding-left:2rem;
+    padding-left:2.2rem;
   
     #ctrl_mode_change {
       animation: skew 3s infinite;
@@ -58,8 +58,19 @@ html, body {
       .animation_container {
         display: none;
         margin-left: -0.5rem;
+        height: 9rem;
+        //width: 5rem;
+         
+        ::before {
+          direction:rtl;
+          background-color: $color_green;
+        }
+        .simplebar-track.simplebar-vertical {
+          left:-1rem;
+        }
 
         span {
+          direction:ltr;
           color: white;
           padding: 0.1rem 0rem;
           display: block;
@@ -72,7 +83,7 @@ html, body {
         }
 
         span:hover {
-            color: greenyellow;
+            color: $color_green;
         }
       }
     }

@@ -7,6 +7,8 @@ export interface IMode {
     tag: ModeEnum,
 
     OnEnterState: () => void,
+    Animate: (enable : boolean) => void,
+
     OnUpdate: () => void,
     OnLeaveState: () => void,
 }

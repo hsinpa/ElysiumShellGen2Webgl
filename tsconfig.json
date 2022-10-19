@@ -10,6 +10,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "noEmit": true,
+    "strictNullChecks": false,
     "skipLibCheck": true,
     "strictPropertyInitialization": false
   },

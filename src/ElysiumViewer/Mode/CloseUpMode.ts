@@ -39,6 +39,10 @@ export default class CloseUpMode implements IMode {
         }
     }
 
+    Animate(enable: boolean) {
+
+    }
+
     OnLeaveState() {
         this.m_lerp_helper.Dispose();
     }

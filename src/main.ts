@@ -33,9 +33,17 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
 let SetControlBar = function(app: BabylonApp) {
   let control_bar = new ControlBarView();
   control_bar.SetCallback(
+  //Skeleton Animation
   (animation) => {
     app.LoadAnimation(animation, app.CharacterMesh);
   }, 
+
+  //Pause Play Btn
+  (enable: boolean) => {
+    app.Mode.Animate(enable);
+  },
+
+  //Refresh Btn
   () => {
     app.SetMode(ModeEnum.FreeStyle);
   });
