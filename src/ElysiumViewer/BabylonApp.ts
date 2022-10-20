@@ -1,9 +1,9 @@
 import  "@babylonjs/loaders/glTF";
-import {Constants, Engine} from '@babylonjs/core/Engines';
+import {Engine} from '@babylonjs/core/Engines';
 import {Scene} from '@babylonjs/core/scene';
-import {DirectionalLight, HemisphericLight, ShadowGenerator} from '@babylonjs/core/Lights';
+import {DirectionalLight, ShadowGenerator} from '@babylonjs/core/Lights';
 import {ArcRotateCamera} from '@babylonjs/core/Cameras';
-import { SceneLoader , ISceneLoaderProgressEvent, SceneLoaderAnimationGroupLoadingMode} from '@babylonjs/core/Loading';
+import { SceneLoader } from '@babylonjs/core/Loading';
 import { GlowLayer} from '@babylonjs/core/Layers';
 import {Vector3, Color4, Matrix} from '@babylonjs/core/Maths';
 import { AbstractMesh, Mesh, MeshBuilder, TransformNode } from "@babylonjs/core/Meshes";
@@ -13,6 +13,7 @@ import { Effect } from "@babylonjs/core/Materials/effect";
 import { BackgroundMaterial } from "@babylonjs/core/Materials/Background";
 import { PostProcess, PostProcessOptions } from "@babylonjs/core/PostProcesses/postProcess";
 
+import {Clamp} from '../Utility/UtilityFunc';
 import WebglUtility from '../Utility/WebglUtility';
 import { IMode, ModeEnum, FaceCloseUpLerpStruct, FreeStyleLerpStruct } from "./Mode/IMode";
 import FreeStyleMode from "./Mode/FreeStyleMode";
@@ -21,9 +22,7 @@ import EventSystem from "../Utility/EventSystem";
 import {EventTag, TexturePath, MaterialParameters} from "./GeneralStaticFlag";
 import AnimAssetManager from "./AnimAssetManager";
 import {BackgroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
-import { NodeMaterial } from "@babylonjs/core/Materials/Node/nodeMaterial";
 import "@babylonjs/core/Materials/Node/Blocks";
-import { TextureBlock } from "@babylonjs/core/Materials/Node/Blocks";
 import LoadingScreenView from "../DOM/LoadingScreenView";
 
 export default class BabylonApp {
@@ -197,8 +196,15 @@ export default class BabylonApp {
         //Load mesh
         let glbPath = "./assets/GDN-H0418-B0103-A0116-L0113-x2048.glb";
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
+            progressEvent.lengthComputable
             console.log(`GLB Load ${progressEvent.loaded}, Total ${progressEvent.total}`);
-            loaderViewCallback.progressUpdate(progressEvent.loaded / progressEvent.total );
+
+            if (progressEvent.lengthComputable)
+                loaderViewCallback.progressUpdate(progressEvent.loaded / progressEvent.total );
+            else {
+                let estimateMB = 20;
+                loaderViewCallback.progressUpdate( Clamp(progressEvent.loaded / (estimateMB * 1000000), 0, 1) );
+            }
         });
 
         console.log(glbMesh);
