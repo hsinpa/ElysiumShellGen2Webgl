@@ -24,6 +24,7 @@ import {BackgroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
 import { NodeMaterial } from "@babylonjs/core/Materials/Node/nodeMaterial";
 import "@babylonjs/core/Materials/Node/Blocks";
 import { TextureBlock } from "@babylonjs/core/Materials/Node/Blocks";
+import LoadingScreenView from "../DOM/LoadingScreenView";
 
 export default class BabylonApp {
 
@@ -41,6 +42,8 @@ export default class BabylonApp {
     private m_animAssetManager : AnimAssetManager;
     private m_mainCharMesh: AbstractMesh
     private m_postprocess: PostProcess;
+    
+    private m_loadingScreen : LoadingScreenView;
 
     public get Mode() {
         return this.m_current_mode;
@@ -53,6 +56,7 @@ export default class BabylonApp {
     constructor(canvasDOM: HTMLCanvasElement, eventSystem: EventSystem) {
         let self = this;
 
+        this.m_loadingScreen = new LoadingScreenView("Hello world");
         this.m_eventSystem = eventSystem;
         this.m_webUti = new WebglUtility();
         this.m_canvasDOM = canvasDOM;
@@ -61,10 +65,12 @@ export default class BabylonApp {
             preserveDrawingBuffer: true 
         });    
 
+        this.m_engine.loadingScreen = this.m_loadingScreen;
+
         this.m_bg_scene = new Scene(this.m_engine);
         this.m_scene = new Scene(this.m_engine);
         this.m_animAssetManager = new AnimAssetManager(this.m_scene);
-
+        
         this.SetBackgroundScene(this.m_bg_scene);
         this.SetFrontScene(this.m_scene);
         this.LoadEnvDDS(this.m_scene);
@@ -158,7 +164,9 @@ export default class BabylonApp {
 
         ground.material = backgroundMaterial;
 
-        let glbMesh = await this.LoadGLBFile(this.m_scene);
+        this.m_engine.displayLoadingUI();
+        let glbMesh = await this.LoadGLBFile(this.m_scene, this.m_loadingScreen);
+        this.m_engine.hideLoadingUI();
 
         if (glbMesh != null) {
             glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
@@ -178,7 +186,7 @@ export default class BabylonApp {
         p_scene.environmentTexture = hdrTexture;
     }
 
-    private async LoadGLBFile(p_scene: Scene) {
+    private async LoadGLBFile(p_scene: Scene, loaderViewCallback: LoadingScreenView) {
         //Load animation
         let animPath = "./assets/anime@idle.glb";
         await this.m_animAssetManager.LoadAnimation("anim@idle", animPath);
@@ -190,6 +198,7 @@ export default class BabylonApp {
         let glbPath = "./assets/GDN-H0418-B0103-A0116-L0113-x2048.glb";
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
             console.log(`GLB Load ${progressEvent.loaded}, Total ${progressEvent.total}`);
+            loaderViewCallback.progressUpdate(progressEvent.loaded / progressEvent.total );
         });
 
         console.log(glbMesh);
