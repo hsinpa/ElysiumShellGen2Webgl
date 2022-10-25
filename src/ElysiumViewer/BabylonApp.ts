@@ -135,6 +135,7 @@ export default class BabylonApp {
 
     private async SetFrontScene(scene: Scene) {
         scene.autoClear = false;
+        let self = this;
         let engine = scene.getEngine();
 
         scene.clearColor = new Color4(0.0, 0.0, 0.0,  0.0);
@@ -150,9 +151,10 @@ export default class BabylonApp {
 
         let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
         Effect.ShadersStore['ForegroundFragmentShader'] = ForegroundPostProcessingFrag;
-        this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength], [MaterialParameters.NoiseTex], 1, camera);
+        this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength, MaterialParameters.AspectRatio], [MaterialParameters.NoiseTex], 1, camera);
         this.m_frontPostprocess.onApply = function (effect) {
             effect.setTexture(MaterialParameters.NoiseTex, noiseTexture);
+            effect.setFloat(MaterialParameters.AspectRatio, self.m_canvasDOM.clientWidth  / self.m_canvasDOM.clientHeight);
             effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
         };
 

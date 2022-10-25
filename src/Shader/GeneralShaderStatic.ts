@@ -18,12 +18,13 @@ export const ForegroundPostProcessingFrag : string = `
     
     uniform sampler2D textureSampler;
     uniform sampler2D u_noiseTex;
+    uniform float u_aspect_ratio;
 
     uniform float u_strength;
 
     void main() {
         vec4 front_texture = texture2D(textureSampler, vUV);
-        vec4 noise_texture = texture2D(u_noiseTex, vUV * 5.0);
+        vec4 noise_texture = texture2D(u_noiseTex, vec2(vUV.x * 5.0 * u_aspect_ratio, vUV.y * 5.0 ));
 
         vec4 col = front_texture;
         vec4 borderCol = vec4(0.3, 0.6, 0.9, 1.0);
