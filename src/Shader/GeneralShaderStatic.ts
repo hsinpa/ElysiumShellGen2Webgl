@@ -12,3 +12,35 @@ export const BackgroundPostProcessingFrag : string = `
         gl_FragColor = bg_texture; 
     }
 `;
+
+export const ForegroundPostProcessingFrag : string = `
+    in vec2 vUV;
+    
+    uniform sampler2D textureSampler;
+    uniform sampler2D u_noiseTex;
+
+    uniform float u_strength;
+
+    void main() {
+        vec4 front_texture = texture2D(textureSampler, vUV);
+        vec4 noise_texture = texture2D(u_noiseTex, vUV * 5.0);
+
+        vec4 col = front_texture;
+        vec4 borderCol = vec4(0.3, 0.6, 0.9, 1.0);
+        float diff = abs(u_strength - noise_texture.r);
+
+        if ((front_texture.r > 0.0001 || front_texture.g > 0.0001 || front_texture.b > 0.0001) && front_texture.w > 0.001) {
+
+            if (noise_texture.g < u_strength) {
+                if (diff < 0.05) {
+                    gl_FragColor = borderCol;
+                    return;
+                }
+
+                gl_FragColor = front_texture;
+                return;
+            }
+        }
+        discard;
+    }
+`;

@@ -5,6 +5,10 @@ export const EventTag = Object.freeze({
 export const MaterialParameters = Object.freeze({ 
     MainTex: "u_mainTex",
     AspectRatio: "u_aspect_ratio",
+
+    BackgroundTex: "u_backgroundTex",
+    NoiseTex: "u_noiseTex",
+    Strength: "u_strength",
 });
 
 export const TexturePath = Object.freeze({
@@ -12,6 +16,8 @@ export const TexturePath = Object.freeze({
     BG_IVD: ".\\textures\\race_background\\BG_IVD-min.jpg",
     BG_ORC: ".\\textures\\race_background\\BG_ORC-min.jpg",
     BG_OLW: ".\\textures\\race_background\\BG_OLW-min.jpg",
+
+    NoiseTexture: ".\\textures\\displacement_noise.jpg",
 
     TransparentGround: ".\\textures\\backgroundGround.png",
 });

@@ -21,9 +21,11 @@ import CloseUpMode from "./Mode/CloseUpMode";
 import EventSystem from "../Utility/EventSystem";
 import {EventTag, TexturePath, MaterialParameters} from "./GeneralStaticFlag";
 import AnimAssetManager from "./AnimAssetManager";
-import {BackgroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
+import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
 import "@babylonjs/core/Materials/Node/Blocks";
 import LoadingScreenView from "../DOM/LoadingScreenView";
+
+let FrontPostStrength: number = 0;
 
 export default class BabylonApp {
 
@@ -40,8 +42,9 @@ export default class BabylonApp {
     private m_eventSystem : EventSystem;
     private m_animAssetManager : AnimAssetManager;
     private m_mainCharMesh: AbstractMesh
-    private m_postprocess: PostProcess;
-    
+    private m_backPostprocess: PostProcess;
+    private m_frontPostprocess: PostProcess;
+
     private m_loadingScreen : LoadingScreenView;
 
     public get Mode() {
@@ -116,16 +119,16 @@ export default class BabylonApp {
         const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, Vector3.Zero(), bg_scene);
         
         Effect.ShadersStore['BackgroundFragmentShader'] = BackgroundPostProcessingFrag;
-        this.m_postprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, camera);
+        this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, camera);
         
-        this.m_postprocess.onApply = function (effect) {
+        this.m_backPostprocess.onApply = function (effect) {
             let bgTexture = new Texture(TexturePath.BG_GDN, bg_scene, false, false);
 
             effect.setFloat(MaterialParameters.AspectRatio, self.m_canvasDOM.clientWidth  / self.m_canvasDOM.clientHeight);
             effect.setTexture(MaterialParameters.MainTex, bgTexture);
         };
 
-        this.m_postprocess.onSizeChanged =  function (postprocess) {
+        this.m_backPostprocess.onSizeChanged =  function (postprocess) {
             postprocess.apply();
         };
     }
@@ -133,7 +136,9 @@ export default class BabylonApp {
     private async SetFrontScene(scene: Scene) {
         scene.autoClear = false;
         let engine = scene.getEngine();
-        //scene.clearColor = new Color4(0.38, 0.43, 0.43,  1.0);
+
+        scene.clearColor = new Color4(0.0, 0.0, 0.0,  0.0);
+
         const cam_position = new Vector3(0, 1.8, 0);
         const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, cam_position, scene);
 
@@ -143,25 +148,19 @@ export default class BabylonApp {
         camera.maxZ = 20;
         camera.minZ = 0.3;
 
+        let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
+        Effect.ShadersStore['ForegroundFragmentShader'] = ForegroundPostProcessingFrag;
+        this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength], [MaterialParameters.NoiseTex], 1, camera);
+        this.m_frontPostprocess.onApply = function (effect) {
+            effect.setTexture(MaterialParameters.NoiseTex, noiseTexture);
+            effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
+        };
+
         const light = new DirectionalLight("light", new Vector3(-2, -2.1, -1), scene);
         light.position = new Vector3(3, 9, 3);
         light.intensity = 3;
         //Shadow 
         var shadowMapper = new ShadowGenerator(1024, light);
-
-        //Ground
-        var ground = MeshBuilder.CreateGround("ground1", {width: 5, height: 5}, scene);
-        ground.receiveShadows = true;
-
-        var backgroundMaterial = new BackgroundMaterial("backgroundMaterial", scene);
-        backgroundMaterial.diffuseTexture = new Texture(TexturePath.TransparentGround, scene);
-        backgroundMaterial.shadowLevel = 0.1;
-
-        if (backgroundMaterial.diffuseTexture != null) {
-            backgroundMaterial.diffuseTexture.hasAlpha = true;
-        }
-
-        ground.material = backgroundMaterial;
 
         this.m_engine.displayLoadingUI();
         let glbMesh = await this.LoadGLBFile(this.m_scene, this.m_loadingScreen);
@@ -228,6 +227,33 @@ export default class BabylonApp {
         this.m_mainCharMesh = mainCharMesh;
     }
 
+    private OnFrontPostProcessComplete(main_scene: Scene) {
+        this.m_frontPostprocess.dispose();
+        this.m_frontPostprocess = null;
+        //Ground
+        let ground_scale = 1.0;
+        var ground = MeshBuilder.CreateGround("ground1", {width: ground_scale, height: ground_scale}, main_scene);
+        ground.receiveShadows = true;
+
+        var backgroundMaterial = new BackgroundMaterial("backgroundMaterial", main_scene);
+        backgroundMaterial.diffuseTexture = new Texture(TexturePath.TransparentGround, main_scene);
+        backgroundMaterial.shadowLevel = 0.1;
+
+        if (backgroundMaterial.diffuseTexture != null) {
+            backgroundMaterial.diffuseTexture.hasAlpha = true;
+        }
+
+        ground.material = backgroundMaterial;
+        //Show shadow gradually
+        let timer = setInterval(function() {
+            ground_scale += 0.2;
+            ground.scaling.set(ground_scale, ground_scale, ground_scale);
+
+            if (ground_scale >= 5)
+                clearInterval(timer);
+          }, 50); 
+    }
+
     private RenderPipeline() {
         if (this.m_bg_scene == undefined || this.m_engine == undefined) return;
         this.m_bg_scene.render();
@@ -235,7 +261,16 @@ export default class BabylonApp {
         if (this.m_scene == undefined || this.m_engine == undefined) return;
             this.m_scene.render();
 
-        if (this.m_current_mode != null)
+        if (this.m_current_mode != null) {
             this.m_current_mode.OnUpdate();
+            
+            if (this.m_frontPostprocess != null) {
+                FrontPostStrength += 0.008; 
+            
+                if (FrontPostStrength > 1.0) {
+                    this.OnFrontPostProcessComplete(this.m_scene);
+                }
+            }
+        }
     }
 }
