@@ -21,3 +21,16 @@ export const TexturePath = Object.freeze({
 
     TransparentGround: ".\\textures\\backgroundGround.png",
 });
+
+export const EmojiTextureArray : string[] = [
+    ".\\textures\\emoji\\ESNX dialog 01-min.png",
+    ".\\textures\\emoji\\ESNX dialog 02-min.png",
+    ".\\textures\\emoji\\ESNX dialog 03-min.png",
+    ".\\textures\\emoji\\ESNX dialog 04-min.png",
+    ".\\textures\\emoji\\ESNX dialog 05-min.png",
+    ".\\textures\\emoji\\ESNX dialog 06-min.png",
+    ".\\textures\\emoji\\ESNX dialog 07-min.png",
+    ".\\textures\\emoji\\ESNX dialog 08-min.png",
+    ".\\textures\\emoji\\ESNX dialog 09-min.png",
+    ".\\textures\\emoji\\ESNX dialog 10-min.png"
+];

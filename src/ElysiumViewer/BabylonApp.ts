@@ -24,6 +24,9 @@ import AnimAssetManager from "./AnimAssetManager";
 import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
 import "@babylonjs/core/Materials/Node/Blocks";
 import LoadingScreenView from "../DOM/LoadingScreenView";
+import { EmojiSystem } from "./EmojiSystem";
+import { SimpleInputSystem } from "./SimpleInputSystem";
+import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
 
 let FrontPostStrength: number = 0;
 
@@ -44,8 +47,11 @@ export default class BabylonApp {
     private m_mainCharMesh: AbstractMesh
     private m_backPostprocess: PostProcess;
     private m_frontPostprocess: PostProcess;
+    private m_emojiSystem: EmojiSystem;
+    private m_simpleInputSystem : SimpleInputSystem;
 
     private m_loadingScreen : LoadingScreenView;
+    private m_click_date: number;
 
     public get Mode() {
         return this.m_current_mode;
@@ -72,14 +78,25 @@ export default class BabylonApp {
         this.m_bg_scene = new Scene(this.m_engine);
         this.m_scene = new Scene(this.m_engine);
         this.m_animAssetManager = new AnimAssetManager(this.m_scene);
-        
+        this.m_emojiSystem = new EmojiSystem(this.m_scene);
+        this.m_simpleInputSystem = new SimpleInputSystem(this.m_scene);
+
         this.SetBackgroundScene(this.m_bg_scene);
         this.SetFrontScene(this.m_scene);
         this.LoadEnvDDS(this.m_scene);
-
+        
         this.m_engine.runRenderLoop(this.RenderPipeline.bind(this));
         window.addEventListener('resize', function () {
             self.m_engine.resize();
+        });
+
+        this.m_canvasDOM.addEventListener('pointerdown', e => {
+            this.m_click_date = Date.now();
+        });
+
+        this.m_canvasDOM.addEventListener('pointerup', e => {
+            if (Date.now() - this.m_click_date < 300)
+                this.ProcessMousePicking();
         });
     }
 
@@ -169,6 +186,8 @@ export default class BabylonApp {
         this.m_engine.hideLoadingUI();
 
         if (glbMesh != null) {
+            glbMesh.isPickable = true;
+            
             glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
 
             shadowMapper.addShadowCaster(glbMesh);
@@ -208,8 +227,6 @@ export default class BabylonApp {
             }
         });
 
-        console.log(glbMesh);
-
         p_scene.animationPropertiesOverride = new AnimationPropertiesOverride();
         p_scene.animationPropertiesOverride.enableBlending = true;
         p_scene.animationPropertiesOverride.blendingSpeed = 0.1;
@@ -236,7 +253,7 @@ export default class BabylonApp {
         let ground_scale = 1.0;
         var ground = MeshBuilder.CreateGround("ground1", {width: ground_scale, height: ground_scale}, main_scene);
         ground.receiveShadows = true;
-
+        ground.isPickable = false;
         var backgroundMaterial = new BackgroundMaterial("backgroundMaterial", main_scene);
         backgroundMaterial.diffuseTexture = new Texture(TexturePath.TransparentGround, main_scene);
         backgroundMaterial.shadowLevel = 0.1;
@@ -256,12 +273,26 @@ export default class BabylonApp {
           }, 50); 
     }
 
+    private ProcessMousePicking() {
+        if (this.m_scene == undefined || this.m_mainCharMesh == undefined) return;
+
+        var pickResult = this.m_scene.pickWithBoundingInfo( this.m_scene.pointerX, this.m_scene.pointerY, null, true);
+        
+        if (pickResult.hit) {
+            let bounding = this.m_mainCharMesh.getBoundingInfo();
+            this.m_emojiSystem.ShowRandomEmoji(new Vector3(0, bounding.maximum.y,0 ));
+        }
+    }
+
     private RenderPipeline() {
         if (this.m_bg_scene == undefined || this.m_engine == undefined) return;
         this.m_bg_scene.render();
 
         if (this.m_scene == undefined || this.m_engine == undefined) return;
             this.m_scene.render();
+
+        if (this.m_emojiSystem != null)
+            this.m_emojiSystem.OnUpdate();
 
         if (this.m_current_mode != null) {
             this.m_current_mode.OnUpdate();

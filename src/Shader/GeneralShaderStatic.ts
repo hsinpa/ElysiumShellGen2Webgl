@@ -45,3 +45,43 @@ export const ForegroundPostProcessingFrag : string = `
         discard;
     }
 `;
+
+export const UniversalVert : string = `
+    precision mediump float;
+    
+    attribute vec3 position;
+    attribute vec2 uv;
+    attribute vec3 normal;
+
+    uniform mat4 worldViewProjection;
+
+    varying vec2 v_uv;
+    varying vec3 v_normal;
+
+    void main () {
+    v_uv = uv;
+    v_normal = normal;
+
+    gl_Position = worldViewProjection * vec4(position, 1.0);
+    }
+`;
+
+export const EmojiFrag : string = `
+    precision mediump float;
+    
+    varying vec2 v_uv;
+    varying vec3 v_normal;
+    
+    uniform sampler2D u_mainTex;
+    uniform float u_strength;
+
+    void main () {    
+        vec4 color = texture2D(u_mainTex, vec2(1.0 - v_uv.x, v_uv.y));
+        //vec4 color = vec4(1.0, 0.0, 0.0, 1.0);
+
+        if (color.a < 0.1 || 1.0 - v_uv.y > u_strength)
+            discard;
+
+        gl_FragColor = vec4(color.x, color.y, color.z, 1.0);
+    }
+`;
