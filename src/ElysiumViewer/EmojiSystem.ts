@@ -12,7 +12,7 @@ import { ShaderMaterial, Texture } from '@babylonjs/core/Materials';
 import { Engine } from '@babylonjs/core/Engines';
 
 const EmojiShaderName = "EmojiShader";
-const DeltaTime = 0.012;
+const DeltaTime = 0.02;
 const EmojiLastTime = 5000;
 
 export class EmojiSystem {
@@ -33,7 +33,6 @@ export class EmojiSystem {
         this.m_shareMat.backFaceCulling = false;
 
         this.m_mesh = this.CreateQuadMesh(this.m_shareMat);
-        //this.ShowRandomEmoji(new Vector3(0, 3.94, 0));
     }
 
     public ShowRandomEmoji(position: Vector3) {
@@ -44,7 +43,7 @@ export class EmojiSystem {
         }, EmojiLastTime);
 
         if (this.m_direction == 1) return;
-        
+
         this.m_direction = 1;
 
         position = position.addInPlaceFromFloats(0, this.m_quad_height * 0.5, 0);
