@@ -1,3 +1,9 @@
 $filter_white: invert(100%) sepia(26%) saturate(186%) hue-rotate(91deg) brightness(96%) contrast(89%);
 $filter_green: invert(73%) sepia(72%) saturate(484%) hue-rotate(39deg) brightness(96%) contrast(99%);
 $color_green: #9BFF00;
+
+@font-face {
+    font-family: MicroSquareEx;
+    src: url("assets\\font\\MicroSquare-Ex Regular.ttf");
+  }
+  

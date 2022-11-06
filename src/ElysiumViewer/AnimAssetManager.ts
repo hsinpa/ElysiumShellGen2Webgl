@@ -75,5 +75,6 @@ export default class AnimAssetManager {
         newAnimGroup.loopAnimation = true;
         newAnimGroup.start(true, 1);
 
+        return newAnimGroup;
     }
 }

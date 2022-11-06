@@ -23,6 +23,8 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
       //SetButtonEvent(babylonApp);
       SetControlBar(babylonApp);
       babylonApp.SetMode(ModeEnum.FreeStyle);
+      babylonApp.Mode.Animate(true);
+      babylonApp.PausePlayAnimation(true);  
     });
 
     return babylonApp;
@@ -34,18 +36,28 @@ let SetControlBar = function(app: BabylonApp) {
   let control_bar = new ControlBarView();
   control_bar.SetCallback(
   //Skeleton Animation
-  (animation) => {
-    app.LoadAnimation(animation, app.CharacterMesh);
+  async (animation) =>  {
+    await app.LoadAnimation(animation, app.CharacterMesh);
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    console.log(app.IsAnimate);
+    if (!app.IsAnimate) app.PausePlayAnimation(false);
   }, 
 
   //Pause Play Btn
   (enable: boolean) => {
     app.Mode.Animate(enable);
+    app.PausePlayAnimation(enable);
   },
 
   //Refresh Btn
-  () => {
+  async () => {
     app.SetMode(ModeEnum.FreeStyle);
+    await app.LoadAnimation("anime@idle.glb", app.CharacterMesh);
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    app.Mode.Animate(app.IsAnimate);
+    app.PausePlayAnimation(app.IsAnimate);
   });
 }
 

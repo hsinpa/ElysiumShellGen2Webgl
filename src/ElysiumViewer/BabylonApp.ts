@@ -27,6 +27,7 @@ import LoadingScreenView from "../DOM/LoadingScreenView";
 import { EmojiSystem } from "./EmojiSystem";
 import { SimpleInputSystem } from "./SimpleInputSystem";
 import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
+import { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 
 let FrontPostStrength: number = 0;
 
@@ -49,9 +50,12 @@ export default class BabylonApp {
     private m_frontPostprocess: PostProcess;
     private m_emojiSystem: EmojiSystem;
     private m_simpleInputSystem : SimpleInputSystem;
+    private m_currentAnimation : AnimationGroup;
+    private m_currentAnimationFlag : boolean = true;
 
     private m_loadingScreen : LoadingScreenView;
     private m_click_date: number;
+
 
     public get Mode() {
         return this.m_current_mode;
@@ -59,6 +63,10 @@ export default class BabylonApp {
 
     public get CharacterMesh() {
         return this.m_mainCharMesh;
+    }
+
+    public get IsAnimate() {
+        return this.m_currentAnimationFlag;
     }
 
     constructor(canvasDOM: HTMLCanvasElement, eventSystem: EventSystem) {
@@ -115,6 +123,7 @@ export default class BabylonApp {
     }
 
     public async LoadAnimation(anime_id: string, mesh: AbstractMesh) {
+        this.PausePlayAnimation(false, false);
 
         let animPath = "./assets/"+anime_id;
 
@@ -127,7 +136,16 @@ export default class BabylonApp {
             return;
         }
 
-        this.m_animAssetManager.AnimeGroupTransfer(mesh, target_anime_group, anime_id + "-agroup");
+        this.m_currentAnimation = this.m_animAssetManager.AnimeGroupTransfer(mesh, target_anime_group, anime_id + "-agroup");
+    }
+
+    public PausePlayAnimation(play: boolean, overwritestate: boolean = true) {
+        if (overwritestate) this.m_currentAnimationFlag = play;
+
+        if (this.m_currentAnimation == null) return;
+        if (play) {
+            this.m_currentAnimation.play();
+        } else this.m_currentAnimation.pause();
     }
 
     private async SetBackgroundScene(bg_scene: Scene) {
@@ -234,7 +252,7 @@ export default class BabylonApp {
 
         let glbCharMesh = glbMesh.meshes.find(x=> x.name != "__root__");
         if (glbCharMesh != null && targetAnimGroup != null) {
-            this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
+            this.m_currentAnimation =  this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
         }
 
         return glbCharMesh;

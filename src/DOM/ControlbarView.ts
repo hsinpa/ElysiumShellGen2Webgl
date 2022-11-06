@@ -48,9 +48,9 @@ export default class ControlBarView {
         let refresh_btn_dom = document.querySelector("#ctrl_refresh_change");
             if (refresh_btn_dom != null) 
                 refresh_btn_dom.addEventListener("click", () => {
-                    let playpause_btn_dom = document.querySelector<HTMLImageElement>("#ctrl_play_change");
-                    let playSrc = playpause_btn_dom.getAttribute("play_src");
-                    playpause_btn_dom.setAttribute("src", playSrc);
+                    // let playpause_btn_dom = document.querySelector<HTMLImageElement>("#ctrl_play_change");
+                    // let playSrc = playpause_btn_dom.getAttribute("pause_src");
+                    // playpause_btn_dom.setAttribute("src", playSrc);
             
                     this._refreshBtnCallback();
                 });

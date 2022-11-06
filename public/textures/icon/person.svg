@@ -1,4 +1,1 @@
-<!-- License: MIT. Made by Bootstrap: https://github.com/twbs/icons -->
-<svg width="16px" height="16px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-fill">
-  <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-</svg>
+<svg id="圖層_1" data-name="圖層 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path d="M49.12,14H78.88V44.53H49.12Zm37.8,74.76L82.51,64.34h-.78c-2.08,5.31-1.49,10.23-1.08,15.94a131.09,131.09,0,0,0,3.29,21.32l3,12.4H70.61L64.54,86.56H63.45L57.39,114H41.08l3-12.4a131.09,131.09,0,0,0,3.29-21.32c.41-5.71,1-10.63-1.08-15.94h-.78L41.08,88.76l-8.33-1.85,3.78-26.59A12,12,0,0,1,48.31,49.87H79.69A12,12,0,0,1,91.47,60.32l3.78,26.59Z"/></svg>
