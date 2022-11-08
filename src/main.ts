@@ -1,6 +1,6 @@
 import './stylesheet/style.scss'
 import BabylonApp from './ElysiumViewer/BabylonApp';
-import {EventTag} from './ElysiumViewer/GeneralStaticFlag';
+import {AnimationSet, EventTag} from './ElysiumViewer/GeneralStaticFlag';
 
 import EventSystem from './Utility/EventSystem';
 import { ModeEnum } from './ElysiumViewer/Mode/IMode';
@@ -19,12 +19,10 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
     let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement, p_eventSystem);
 
     p_eventSystem.ListenToEvent(EventTag.BabylonAppReady, () => {
-      //SetDropdownContent(babylonApp);
-      //SetButtonEvent(babylonApp);
       SetControlBar(babylonApp);
       babylonApp.SetMode(ModeEnum.FreeStyle);
       babylonApp.Mode.Animate(true);
-      babylonApp.PausePlayAnimation(true);  
+      // babylonApp.PausePlayAnimation(true);  
     });
 
     return babylonApp;
@@ -37,50 +35,26 @@ let SetControlBar = function(app: BabylonApp) {
   control_bar.SetCallback(
   //Skeleton Animation
   async (animation) =>  {
-    await app.LoadAnimation(animation, app.CharacterMesh);
+    await app.MainScene.LoadAnimation(animation);
     await new Promise(resolve => setTimeout(resolve, 200));
 
-    console.log(app.IsAnimate);
-    if (!app.IsAnimate) app.PausePlayAnimation(false);
+    // console.log(app.IsAnimate);
+    if (!app.IsAnimateMode) app.SetAnimationMode(false);
   }, 
 
   //Pause Play Btn
   (enable: boolean) => {
     app.Mode.Animate(enable);
-    app.PausePlayAnimation(enable);
+    app.SetAnimationMode(enable);
   },
 
   //Refresh Btn
   async () => {
     app.SetMode(ModeEnum.FreeStyle);
-    await app.LoadAnimation("anime@idle.glb", app.CharacterMesh);
+    await app.MainScene.LoadAnimation(AnimationSet.Idle);
     await new Promise(resolve => setTimeout(resolve, 200));
 
-    app.Mode.Animate(app.IsAnimate);
-    app.PausePlayAnimation(app.IsAnimate);
+    app.Mode.Animate(app.IsAnimateMode);
+    app.SetAnimationMode(app.IsAnimateMode);
   });
-}
-
-let SetButtonEvent = function(app: BabylonApp) {
-  let action_btn_dom = document.querySelector("#ctrl_mode_change");
-
-  if (action_btn_dom != null) {
-    action_btn_dom.addEventListener("click", () => {
-
-      let nextMode = (app.Mode.tag == ModeEnum.FreeStyle) ? ModeEnum.FaceCloseUp : ModeEnum.FreeStyle;
-
-      app.SetMode(nextMode);
-    });
-  }
-}
-
-let SetDropdownContent = function(app: BabylonApp) {
-  let dropdown_select_dom = document.querySelector("#animation_dropdown select") as HTMLOptionElement;
-
-  dropdown_select_dom?.addEventListener("change", (v) => { 
-    console.log(dropdown_select_dom.value);
-
-    app.LoadAnimation(dropdown_select_dom.value, app.CharacterMesh);
-  });
-
 }

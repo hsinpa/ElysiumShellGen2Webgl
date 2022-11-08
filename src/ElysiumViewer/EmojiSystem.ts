@@ -1,4 +1,4 @@
-import { Vector3 } from '@babylonjs/core/Maths';
+import { Quaternion, Space, Vector3 } from '@babylonjs/core/Maths';
 import { Mesh, MeshBuilder } from '@babylonjs/core/Meshes';
 import {Scene} from '@babylonjs/core/scene';
 import {GetRandomRange, Clamp} from '../Utility/UtilityFunc';
@@ -35,7 +35,7 @@ export class EmojiSystem {
         this.m_mesh = this.CreateQuadMesh(this.m_shareMat);
     }
 
-    public ShowRandomEmoji(position: Vector3) {
+    public ShowRandomEmoji(position: Vector3, rotation: Quaternion) {
         clearInterval(this.m_interval_id);
 
         this.m_interval_id = setInterval(() => {
@@ -55,6 +55,7 @@ export class EmojiSystem {
 
         //this.m_mesh.material  = this.m_shareMat;
         this.m_mesh.position = position;
+        this.m_mesh.rotationQuaternion = rotation;
         this.m_mesh.setEnabled(true);
     }
 

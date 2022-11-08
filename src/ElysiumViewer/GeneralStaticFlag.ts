@@ -34,3 +34,9 @@ export const EmojiTextureArray : string[] = [
     ".\\textures\\emoji\\ESNX dialog 09-min.png",
     ".\\textures\\emoji\\ESNX dialog 10-min.png"
 ];
+
+export const AnimationSet = Object.freeze({
+    Idle : "anime@idle.glb",
+    Running : "anime@running.glb",
+    Dance : "anime@dance.glb"
+});
