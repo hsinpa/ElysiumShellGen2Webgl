@@ -28,13 +28,14 @@ export interface ModeLerpStruct {
 }
 
 export let FreeStyleLerpStruct : ModeLerpStruct = {
-    lerp_target: new Vector3(0, 2.3,0),
-    lerp_alpha: Math.PI / 2.9,
-    lerp_beta: Math.PI * 0.35,
-    lerp_radius: 30,
+    lerp_target: new Vector3(0, 2.3
+        ,0),
+    lerp_alpha: Math.PI * 0.29,
+    lerp_beta: Math.PI * 0.48,
+    lerp_radius: 33,
 
-    max_camera_radius: 200,
-    min_camera_radius: 10.8,
+    max_camera_radius: 50,
+    min_camera_radius: 15,
 }
 
 export let FaceCloseUpLerpStruct : ModeLerpStruct = {

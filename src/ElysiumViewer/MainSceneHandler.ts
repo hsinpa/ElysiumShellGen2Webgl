@@ -127,7 +127,7 @@ export default class MainSceneHandler {
         this.m_mainCam.wheelPrecision = 30;
         this.m_mainCam.wheelDeltaPercentage = 0.01;
         this.m_mainCam.maxZ = 100;
-        this.m_mainCam.minZ = 1;
+        this.m_mainCam.minZ = 5;
         this.m_mainCam.fov = 0.166;
 
         let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
@@ -139,21 +139,25 @@ export default class MainSceneHandler {
             effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
         };
 
-        const light = new DirectionalLight("light", new Vector3(-2, -2.1, -1), scene);
-        light.position = new Vector3(3, 9, 3);
+        const light = new DirectionalLight("light", new Vector3(-0.3,-0.7, -0.3), scene);
+        light.position = new Vector3(3, 6, 3);
         light.intensity = 3;
 
         //Shadow 
         var shadowMapper = new ShadowGenerator(1024, light);
+        shadowMapper.getShadowMap().renderList.push(glbMesh);
+        //shadowMapper.useBlurCloseExponentialShadowMap = true;
+        shadowMapper.usePoissonSampling = true;
 
         glbMesh.isPickable = true;
-        
+        glbMesh.receiveShadows = true;
+
         glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
 
         shadowMapper.addShadowCaster(glbMesh);
 
         var gl = new GlowLayer("glow", scene);
-        gl.intensity = 2.0;
+        gl.intensity = 1.5;
     }
 
 
