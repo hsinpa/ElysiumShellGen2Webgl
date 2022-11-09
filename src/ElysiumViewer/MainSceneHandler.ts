@@ -121,13 +121,14 @@ export default class MainSceneHandler {
         scene.clearColor = new Color4(0.0, 0.0, 0.0,  0.0);
 
         const cam_position = new Vector3(0, 1.8, 0);
-        this.m_mainCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, cam_position, scene);
+        this.m_mainCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 30, cam_position, scene);
 
         this.m_mainCam.attachControl(canvasDOM, true);
         this.m_mainCam.wheelPrecision = 30;
         this.m_mainCam.wheelDeltaPercentage = 0.01;
-        this.m_mainCam.maxZ = 20;
-        this.m_mainCam.minZ = 0.3;
+        this.m_mainCam.maxZ = 100;
+        this.m_mainCam.minZ = 1;
+        this.m_mainCam.fov = 0.166;
 
         let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
         Effect.ShadersStore['ForegroundFragmentShader'] = ForegroundPostProcessingFrag;

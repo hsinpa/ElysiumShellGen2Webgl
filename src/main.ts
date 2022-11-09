@@ -21,7 +21,7 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
     p_eventSystem.ListenToEvent(EventTag.BabylonAppReady, () => {
       SetControlBar(babylonApp);
       babylonApp.SetMode(ModeEnum.FreeStyle);
-      babylonApp.Mode.Animate(true);
+      babylonApp.Mode.Animate(false);
       // babylonApp.PausePlayAnimation(true);  
     });
 
