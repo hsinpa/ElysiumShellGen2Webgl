@@ -14,7 +14,7 @@ import EventSystem from "../Utility/EventSystem";
 import AnimAssetManager from "./AnimAssetManager";
 import {EventTag, TexturePath, MaterialParameters, AnimationSet} from "./GeneralStaticFlag";
 import {LoadGLBFile, LoadEnvDDS, LoadAnimation} from './ViewerUtility';
-
+import '@babylonjs/core/Rendering/depthRendererSceneComponent';
 let FrontPostStrength: number = 0;
 
 export default class MainSceneHandler {
@@ -32,6 +32,9 @@ export default class MainSceneHandler {
     private m_currentAnimation : AnimationGroup;
 
     private m_mainCharMesh: AbstractMesh;
+
+    private _animationSpeed: number = 1;
+
     public get CharacterMesh() {
         return this.m_mainCharMesh;
     }
@@ -47,6 +50,8 @@ export default class MainSceneHandler {
     constructor(engine: Engine, canvasDOM: HTMLCanvasElement, loadScreenView: LoadingScreenView, eventSystem: EventSystem) {
         this.m_engine = engine;
         this.m_canvasDOM = canvasDOM;
+        
+
         this.m_mainScene = new Scene(engine);
         this.m_backgroundScene = new Scene(engine);
         this.m_loadScreenView = loadScreenView;
@@ -60,6 +65,7 @@ export default class MainSceneHandler {
 
     public async LoadAnimation(anime_id: string) {
         this.m_currentAnimation = await LoadAnimation(this.m_animAssetManager, anime_id, this.m_mainCharMesh, this.m_currentAnimation);
+        this.SetAnimationSpeed(this._animationSpeed);
     }
 
     public PlayAnimation() {
@@ -68,6 +74,13 @@ export default class MainSceneHandler {
 
     public PauseAnimation() {
         if (this.m_currentAnimation != null) this.m_currentAnimation.pause();
+    }
+
+    public SetAnimationSpeed(speed : number) {
+        this._animationSpeed = speed;
+        if (this.m_currentAnimation != null) {
+            this.m_currentAnimation.speedRatio = speed;
+        }
     }
 
     private async SetBackgroundScene(bg_scene: Scene, canvas_width: number, canvas_height: number) {
@@ -119,21 +132,24 @@ export default class MainSceneHandler {
     private SetFrontScene(glbMesh: AbstractMesh, scene: Scene, canvasDOM: HTMLCanvasElement) {
         scene.autoClear = false;
         scene.clearColor = new Color4(0.0, 0.0, 0.0,  0.0);
-
+        
         const cam_position = new Vector3(0, 1.8, 0);
         this.m_mainCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 30, cam_position, scene);
 
         this.m_mainCam.attachControl(canvasDOM, true);
         this.m_mainCam.wheelPrecision = 30;
         this.m_mainCam.wheelDeltaPercentage = 0.01;
-        this.m_mainCam.maxZ = 100;
+        this.m_mainCam.maxZ = 60;
         this.m_mainCam.minZ = 5;
         this.m_mainCam.fov = 0.166;
 
+        let depthTex = scene.enableDepthRenderer(this.m_mainCam);
         let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
         Effect.ShadersStore['ForegroundFragmentShader'] = ForegroundPostProcessingFrag;
-        this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength, MaterialParameters.AspectRatio], [MaterialParameters.NoiseTex], 1, this.m_mainCam);
+        this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength, MaterialParameters.AspectRatio], 
+                                                                    [MaterialParameters.NoiseTex, MaterialParameters.DepthTex], 1, this.m_mainCam);
         this.m_frontPostprocess.onApply = function (effect) {
+            effect.setTexture(MaterialParameters.DepthTex, depthTex.getDepthMap());
             effect.setTexture(MaterialParameters.NoiseTex, noiseTexture);
             effect.setFloat(MaterialParameters.AspectRatio, canvasDOM.clientWidth  / canvasDOM.clientHeight);
             effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
@@ -176,6 +192,8 @@ export default class MainSceneHandler {
         if (backgroundMaterial.diffuseTexture != null) {
             backgroundMaterial.diffuseTexture.hasAlpha = true;
         }
+        
+        main_scene.disableDepthRenderer(this.m_mainCam);
 
         ground.material = backgroundMaterial;
         //Show shadow gradually

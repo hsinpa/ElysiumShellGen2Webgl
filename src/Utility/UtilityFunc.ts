@@ -49,16 +49,24 @@ export function DoDelayAction(time : number) : Promise<void> {
         let flag = false;
         (
             function waitForFoo(){
-
                 if (flag) return resolve();
 
                 flag = true;
                 setTimeout(waitForFoo, time);
         })();
     });
-
 }
 
 export function Clamp(value : number, min : number, max : number) {
     return Math.min(Math.max(value, min), max);
   };
+
+
+export function DownloadBase64File(rawdata :string) {
+    const downloadLink = document.createElement("a");
+    downloadLink.href = rawdata;
+    downloadLink.download = "Elysium Screenshot";
+    downloadLink.click();
+
+    downloadLink.remove();
+}

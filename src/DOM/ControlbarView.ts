@@ -7,14 +7,21 @@ type SKAnimationType = {
     (s: string): void;
   };
 
+type NormalClickEvent = { (): void; };
+
 export default class ControlBarView {
 
     private _menu_flag: boolean;
     private _skeleton_animation_flag: boolean;
 
     private _skeletonAnimationCallback: SKAnimationType;
-    private _refreshBtnCallback: () => void;
+    private _refreshBtnCallback: NormalClickEvent;
     private _stateRotateCallback: (enable: boolean) => void;
+    private _screenshotBtnCallback: NormalClickEvent;
+    private _animSpeedBtnCallback:  (speed: number) => void;
+
+    private _animationSpeedSet = [1, 2, 0.5];
+    private _animationSpeedIndex = 0;
 
     constructor( ) {
         this._menu_flag = false;
@@ -24,10 +31,13 @@ export default class ControlBarView {
         this.SetAnimationBarStyle();
     }
 
-    public SetCallback(skeletonAnimationCallback: SKAnimationType, stateRotateCallback: (enable: boolean) => void, refreshBtnCallback: () => void ) {
+    public SetCallback(skeletonAnimationCallback: SKAnimationType, stateRotateCallback: (enable: boolean) => void, refreshBtnCallback: NormalClickEvent, 
+        screenshotCallback : NormalClickEvent, animSpeedCallback : (speed: number) => void) {
         this._skeletonAnimationCallback = skeletonAnimationCallback;
         this._stateRotateCallback = stateRotateCallback;
         this._refreshBtnCallback = refreshBtnCallback;
+        this._screenshotBtnCallback = screenshotCallback;
+        this._animSpeedBtnCallback = animSpeedCallback;
     }
 
     private RegisterBtnEvent() {
@@ -60,6 +70,10 @@ export default class ControlBarView {
                 span_btn_dom.forEach(x => {
                     x.addEventListener("click", () => this.OnSkeletonAnimationSpanClick(x));
             });
+
+
+        this.SetClickButtonEvent("#ctrl_screenshot", () => this._screenshotBtnCallback() );
+        this.SetClickButtonEvent("#ctrl_animation_speed", this.OnAnimationSpeedChange.bind(this));
     }
 
     private OnMenuBtnClick() {
@@ -125,5 +139,22 @@ export default class ControlBarView {
         let animation_container = document.querySelector<HTMLBaseElement>(".animation_container");
         if (animation_container == null) return;
 
+    }
+
+    private OnAnimationSpeedChange(dom: HTMLSpanElement) {
+        this._animationSpeedIndex= (this._animationSpeedIndex + 1) % this._animationSpeedSet.length;
+
+        let speed = this._animationSpeedSet[this._animationSpeedIndex];
+        this._animSpeedBtnCallback(speed);
+
+        dom.innerHTML = speed + "x";
+    }
+
+    private SetClickButtonEvent<T extends Element>(query: string, callback : (dom: T) => void )  {
+        let q_dom = document.querySelector<T>(query);
+
+        if (q_dom != null) {
+            q_dom.addEventListener("click", () => callback(q_dom));
+        }
     }
 }

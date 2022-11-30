@@ -8,6 +8,7 @@ export const MaterialParameters = Object.freeze({
 
     BackgroundTex: "u_backgroundTex",
     NoiseTex: "u_noiseTex",
+    DepthTex: "u_depthTex",
     Strength: "u_strength",
 });
 

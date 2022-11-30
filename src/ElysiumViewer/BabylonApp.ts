@@ -2,7 +2,7 @@ import  "@babylonjs/loaders/glTF";
 import {Engine} from '@babylonjs/core/Engines';
 import {Scene} from '@babylonjs/core/scene';
 import {Vector3, Color4, Matrix} from '@babylonjs/core/Maths';
-
+import { Tools } from "@babylonjs/core/";
 import {Clamp} from '../Utility/UtilityFunc';
 import WebglUtility from '../Utility/WebglUtility';
 import { IMode, ModeEnum, FaceCloseUpLerpStruct, FreeStyleLerpStruct } from "./Mode/IMode";
@@ -100,6 +100,10 @@ export default class BabylonApp {
             this.m_mainScene.PlayAnimation();
         else 
             this.m_mainScene.PauseAnimation();
+    }
+
+    public async TakeScreenshot() {
+        return await Tools.CreateScreenshotAsync(this.m_engine, this.MainScene.Camera, 1024, "image/jpg");
     }
 
     private OnSceneReady() {

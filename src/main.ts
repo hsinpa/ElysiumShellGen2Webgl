@@ -5,6 +5,7 @@ import {AnimationSet, EventTag} from './ElysiumViewer/GeneralStaticFlag';
 import EventSystem from './Utility/EventSystem';
 import { ModeEnum } from './ElysiumViewer/Mode/IMode';
 import ControlBarView from './DOM/ControlbarView';
+import {DownloadBase64File} from "./Utility/UtilityFunc";
 
 window.addEventListener("load", function(event) {
   let event_system = new EventSystem();
@@ -56,5 +57,17 @@ let SetControlBar = function(app: BabylonApp) {
 
     app.Mode.Animate(app.IsAnimateMode);
     app.SetAnimationMode(app.IsAnimateMode);
-  });
+  },
+
+  //Screenshot
+  async () => {
+    let data = await app.TakeScreenshot();    
+    DownloadBase64File(data);
+  },
+
+  //Animation speed
+  (speed : number) => {
+    app.MainScene.SetAnimationSpeed(speed);
+  }
+  );
 }

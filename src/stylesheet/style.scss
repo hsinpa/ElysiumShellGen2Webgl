@@ -36,6 +36,10 @@ html, body {
       width: 2rem;
       filter: $filter_white;
     }
+
+    span {
+      color : white;
+    }
   
     img:hover {
       filter: $filter_green;
