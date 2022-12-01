@@ -103,7 +103,8 @@ export default class BabylonApp {
     }
 
     public async TakeScreenshot() {
-        return await Tools.CreateScreenshotAsync(this.m_engine, this.MainScene.Camera, 1024, "image/jpg");
+        return await Tools.CreateScreenshotAsync(this.m_engine, this.MainScene.Camera, 
+                                                {width:this.m_canvasDOM.clientWidth, height:this.m_canvasDOM.clientHeight}, "image/jpg");
     }
 
     private OnSceneReady() {
