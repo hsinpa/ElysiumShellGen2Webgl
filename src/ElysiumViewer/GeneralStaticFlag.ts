@@ -37,7 +37,5 @@ export const EmojiTextureArray : string[] = [
 ];
 
 export const AnimationSet = Object.freeze({
-    Idle : "anime@idle.glb",
-    Running : "anime@running.glb",
-    Dance : "anime@dance.glb"
+    Idle : "idle.glb",
 });

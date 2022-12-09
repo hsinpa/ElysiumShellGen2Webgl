@@ -44,8 +44,8 @@ export default class FreeStyleMode implements IMode {
         if (iscomplete) {
             this.m_camera.radius = Clamp(this.m_camera.radius, this.m_lerp_struct.min_camera_radius, this.m_lerp_struct.max_camera_radius);
 
-            if (this.m_trigger_count > 1)
-                this.m_targetMesh.rotate(this.m_axis, 0.0005);
+            // if (this.m_trigger_count > 1)
+            //     this.m_targetMesh.rotate(this.m_axis, 0.0005);
         }
     }
 

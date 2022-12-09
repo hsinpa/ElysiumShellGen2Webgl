@@ -55,6 +55,9 @@ let SetControlBar = function(app: BabylonApp) {
     await app.MainScene.LoadAnimation(AnimationSet.Idle);
     await new Promise(resolve => setTimeout(resolve, 200));
 
+    let idle_span_dom : HTMLSpanElement = document.querySelector('.animation_container span[data-value="idle.glb"]');
+    if (idle_span_dom != null) control_bar.SetSkeletonAnimationStyle(idle_span_dom);
+    
     app.Mode.Animate(app.IsAnimateMode);
     app.SetAnimationMode(app.IsAnimateMode);
   },

@@ -1,3 +1,4 @@
+import { Vector3 } from "@babylonjs/core";
 import { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import { AnimationPropertiesOverride } from "@babylonjs/core/Animations/animationPropertiesOverride";
 import { SceneLoader } from "@babylonjs/core/Loading";
@@ -40,6 +41,8 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
         //     this.m_currentAnimation =  this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
         // }
 
+        glbCharMesh.position = new Vector3(0, 1.35, 0);
+
         return glbCharMesh;
     }
 
@@ -47,7 +50,7 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
         if (animationGroup != null)
             animationGroup.pause();
 
-        let animPath = "./assets/"+anime_id;
+        let animPath = "./assets/anime/"+anime_id;
 
         await animAssetManager.LoadAnimation(anime_id, animPath);
 

@@ -40,6 +40,17 @@ export default class ControlBarView {
         this._animSpeedBtnCallback = animSpeedCallback;
     }
 
+    public SetSkeletonAnimationStyle(selfElement: HTMLSpanElement) {
+        let span_btn_dom = document.querySelectorAll<HTMLSpanElement>(".animation_container span");
+            if (span_btn_dom != null) 
+                span_btn_dom.forEach(x => {
+                    x.classList.remove("selected");
+                });
+
+        selfElement.classList.add("selected");
+    }
+
+
     private RegisterBtnEvent() {
 
         let action_btn_dom = document.querySelector("#ctrl_mode_change");
@@ -121,15 +132,8 @@ export default class ControlBarView {
     }
 
     private OnSkeletonAnimationSpanClick(selfElement: HTMLSpanElement) {
-        console.log(this);
+        this.SetSkeletonAnimationStyle(selfElement);
         let dataValue = selfElement.getAttribute("data-value");
-        let span_btn_dom = document.querySelectorAll<HTMLSpanElement>(".animation_container span");
-            if (span_btn_dom != null) 
-                span_btn_dom.forEach(x => {
-                    x.classList.remove("selected");
-                });
-
-        selfElement.classList.add("selected");
 
         if (this._skeletonAnimationCallback != null && dataValue != null)
             this._skeletonAnimationCallback(dataValue);
