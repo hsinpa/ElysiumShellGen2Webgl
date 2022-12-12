@@ -18,7 +18,7 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
         // let targetAnimGroup = running;
 
         //Load mesh
-        let glbPath = "./assets/GDN-H0418-B0103-A0116-L0113-x2048.glb";
+        let glbPath = "./assets/H1317IVDs-B0517IVDs-A1017IVDs-L0117GDNs-EQP15n-x2048.glb";
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
             progressEvent.lengthComputable
             console.log(`GLB Load ${progressEvent.loaded}, Total ${progressEvent.total}`);
@@ -36,12 +36,17 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
         p_scene.animationPropertiesOverride.blendingSpeed = 0.1;
         p_scene.animationPropertiesOverride.loopMode = 1;
 
+
+        console.log(glbMesh.meshes);
+        let rootMesh = glbMesh.meshes.find(x=> x.name == "__root__");
         let glbCharMesh = glbMesh.meshes.find(x=> x.name != "__root__");
         // if (glbCharMesh != null && targetAnimGroup != null) {
         //     this.m_currentAnimation =  this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
         // }
 
-        glbCharMesh.position = new Vector3(0, 1.35, 0);
+            rootMesh.position =  new Vector3(0, 1.35, 0);
+        
+
 
         return glbCharMesh;
     }

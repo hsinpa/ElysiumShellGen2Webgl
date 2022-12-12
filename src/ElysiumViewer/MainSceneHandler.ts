@@ -168,12 +168,12 @@ export default class MainSceneHandler {
         glbMesh.isPickable = true;
         glbMesh.receiveShadows = true;
 
-        glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
+        //glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
 
         shadowMapper.addShadowCaster(glbMesh);
 
         var gl = new GlowLayer("glow", scene);
-        gl.intensity = 1.5;
+        gl.intensity = 1.2;
     }
 
 

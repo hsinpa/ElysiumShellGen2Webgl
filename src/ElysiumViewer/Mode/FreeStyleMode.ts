@@ -31,8 +31,8 @@ export default class FreeStyleMode implements IMode {
     OnEnterState() {
         this.m_trigger_count = 0;
         
-        this.m_targetMesh.rotationQuaternion = Quaternion.Identity();
-        this.m_targetMesh.rotate(new Vector3(0, 1, 0), Math.PI);
+        // this.m_targetMesh.rotationQuaternion = Quaternion.Identity();
+        // this.m_targetMesh.rotate(new Vector3(0, 1, 0), Math.PI);
 
         this.m_lerp_helper.OnEnterState(this.m_camera);
         console.log("OnEnterState");
