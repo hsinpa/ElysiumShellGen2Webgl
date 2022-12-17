@@ -134,10 +134,12 @@ html, body {
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     width: 25rem;
+    height: 25rem;
 
     @media only screen and (max-width: 600px) {
-      width: 12rem;
-    }      
+      width: 10rem;
+      height: 10rem;
+    }
     
     p {
       color: white;
@@ -149,6 +151,20 @@ html, body {
       text-align: center;
       display:block;
     }
+
+    svg {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 25rem;
+      height: 25rem;
+
+      @media only screen and (max-width: 600px) {
+        width: 10rem;
+        height: 10rem;
+      }
+    }
+
   }
 
   .load_bar {

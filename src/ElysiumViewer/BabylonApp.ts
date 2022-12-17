@@ -110,8 +110,8 @@ export default class BabylonApp {
     private OnSceneReady() {
         this.m_emojiSystem = new EmojiSystem(this.m_mainScene.Scene);
 
-        this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, this.m_mainScene.Camera, this.m_mainScene.CharacterMesh, FreeStyleLerpStruct);
-        this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, this.m_mainScene.Camera, this.m_mainScene.CharacterMesh, FaceCloseUpLerpStruct);
+        this.m_free_style_mode = new FreeStyleMode(ModeEnum.FreeStyle, this.m_mainScene.Camera, this.m_mainScene.CharacterMesh.GetMainMesh, FreeStyleLerpStruct);
+        this.m_close_up_mode = new CloseUpMode(ModeEnum.FaceCloseUp, this.m_mainScene.Camera, this.m_mainScene.CharacterMesh.GetMainMesh, FaceCloseUpLerpStruct);
     }
 
     private ProcessMousePicking() {
@@ -120,10 +120,10 @@ export default class BabylonApp {
         var pickResult = this.m_mainScene.Scene.pickWithBoundingInfo( this.m_mainScene.Scene.pointerX, this.m_mainScene.Scene.pointerY, null, true);
         
         if (pickResult.hit) {
-            let bounding = this.m_mainScene.CharacterMesh.getBoundingInfo();
+            let bounding = this.m_mainScene.CharacterMesh.GetMainMesh.getBoundingInfo();
 
 
-            this.m_emojiSystem.ShowRandomEmoji(new Vector3(0, bounding.maximum.y,0 ), this.m_mainScene.CharacterMesh.absoluteRotationQuaternion);
+            this.m_emojiSystem.ShowRandomEmoji(new Vector3(0, bounding.maximum.y,0 ), this.m_mainScene.CharacterMesh.GetMainMesh.absoluteRotationQuaternion);
         }
     }
 

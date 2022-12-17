@@ -15,6 +15,7 @@ import AnimAssetManager from "./AnimAssetManager";
 import {EventTag, TexturePath, MaterialParameters, AnimationSet} from "./GeneralStaticFlag";
 import {LoadGLBFile, LoadEnvDDS, LoadAnimation} from './ViewerUtility';
 import '@babylonjs/core/Rendering/depthRendererSceneComponent';
+import GLBCharacterMesh from './GLBCharacterMesh';
 let FrontPostStrength: number = 0;
 
 export default class MainSceneHandler {
@@ -31,7 +32,7 @@ export default class MainSceneHandler {
     private m_animAssetManager : AnimAssetManager;
     private m_currentAnimation : AnimationGroup;
 
-    private m_mainCharMesh: AbstractMesh;
+    private m_mainCharMesh: GLBCharacterMesh;
 
     private _animationSpeed: number = 1;
 
@@ -64,7 +65,7 @@ export default class MainSceneHandler {
     }
 
     public async LoadAnimation(anime_id: string) {
-        this.m_currentAnimation = await LoadAnimation(this.m_animAssetManager, anime_id, this.m_mainCharMesh, this.m_currentAnimation);
+        this.m_currentAnimation = await LoadAnimation(this.m_animAssetManager, anime_id, this.m_mainCharMesh.GetMainMesh, this.m_currentAnimation);
         this.SetAnimationSpeed(this._animationSpeed);
     }
 
@@ -111,7 +112,7 @@ export default class MainSceneHandler {
             return;
         }
 
-        this.m_mainCharMesh.visibility = 0;
+        this.m_mainCharMesh.IteratorOps((x) => x.visibility = 0 );
 
         await this.LoadAnimation( AnimationSet.Idle);
 
@@ -119,17 +120,16 @@ export default class MainSceneHandler {
 
         LoadEnvDDS(scene);
 
-        this.m_mainCharMesh.visibility = 1;
+        this.m_mainCharMesh.IteratorOps((x) => x.visibility = 1 );
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         engine.hideLoadingUI();
-
 
         this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
     }
 
-    private SetFrontScene(glbMesh: AbstractMesh, scene: Scene, canvasDOM: HTMLCanvasElement) {
+    private SetFrontScene(glbMesh: GLBCharacterMesh, scene: Scene, canvasDOM: HTMLCanvasElement) {
         scene.autoClear = false;
         scene.clearColor = new Color4(0.0, 0.0, 0.0,  0.0);
         
@@ -155,25 +155,25 @@ export default class MainSceneHandler {
             effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
         };
 
-        const light = new DirectionalLight("light", new Vector3(-0.3,-0.7, -0.3), scene);
-        light.position = new Vector3(3, 6, 3);
-        light.intensity = 3;
+        const light = new DirectionalLight("light", new Vector3(0.3, -1, 0.55), scene);
+        light.position = new Vector3(0, 11, 0);
+        light.intensity = 2;
 
         //Shadow 
         var shadowMapper = new ShadowGenerator(1024, light);
-        shadowMapper.getShadowMap().renderList.push(glbMesh);
         //shadowMapper.useBlurCloseExponentialShadowMap = true;
         shadowMapper.usePoissonSampling = true;
 
-        glbMesh.isPickable = true;
-        glbMesh.receiveShadows = true;
+        glbMesh.IteratorOps(x=> {
+            shadowMapper.getShadowMap().renderList.push(x);
+            x.isPickable = true;
+            x.receiveShadows = true;
+            shadowMapper.addShadowCaster(x);
+        });
 
-        //glbMesh.rotate(new Vector3(0, 1, 0), Math.PI);
-
-        shadowMapper.addShadowCaster(glbMesh);
 
         var gl = new GlowLayer("glow", scene);
-        gl.intensity = 1.2;
+        gl.intensity = 1;
     }
 
 
