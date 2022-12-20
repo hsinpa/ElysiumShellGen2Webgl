@@ -5,8 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elysium Viewer</title>
-    <script type="module" crossorigin src="./assets/index.fbfdd62a.js"></script>
-    <link rel="stylesheet" href="./assets/index.248ba3f6.css">
+    <script type="module" crossorigin src="./assets/index.69ada78d.js"></script>
+    <link rel="stylesheet" href="./assets/index.57f0e20b.css">
   </head>
   <body>
     
@@ -30,6 +30,9 @@
           
             <path fill="url(#grad1)" mask="url(#esnx_logo_mask)" d="M512,261.34v59.22H501.32L430.67,376h-88L272,320.56H261.34V261.34h44L376,316.74h21.36L468,261.34Zm-81.33,125.3h-88L272,442H261.34v59.22h44L376,445.86h21.36L468,501.26h44V442H501.32ZM109.84,431.36h59.22V420.68l-28.24-78.77V331.24H81.6v10.67l28.24,78.77Zm31-170H37.6L0,292.85V501.26H59.22v-170L69.9,320.56h70.92Zm50.62,170L180.76,442H109.84v59.22H213.06l37.6-31.52V261.34H191.44ZM10.68,66.14H0v59.22H44L114.65,70h136V10.74H81.33ZM44,136H0v59.22H10.68l70.65,55.4H250.66V191.44h-136Zm48.3-34.95h0l-10.68,8.33V152l10.68,8.33H250.66V101.09ZM343,109.42v50.89h76.79L430.43,152V101.09H353.64Zm-37.62,15.94L376,70H512V10.74H342.67L272,66.14H261.34v59.22Zm125.33,125.3,70.65-55.4H512V136H468l-70.65,55.4h-136v59.22Z"/>
           </svg>
+
+          <br>
+          <span>0%</span>
       </div>
     </div>
     
@@ -63,22 +66,29 @@
           </div>
           
           <img id="ctrl_refresh_change" src="./textures/icon/refresh.svg">
-          <img id="ctrl_play_change" src="./textures/icon/pause.svg" pause_src="./textures/icon/pause.svg" play_src="./textures/icon/play.svg">
-
           <img id="ctrl_screenshot" src="./textures/icon/screenshot.svg">
-          <span id="ctrl_animation_speed">1x</span>
-        </div>
+          <img id="ctrl_play_change" src="./textures/icon/pause.svg" pause_src="./textures/icon/pause.svg" play_src="./textures/icon/play.svg">
+          <hr id="ctrl_info_line">
 
+          <img id="ctrl_info" src="./textures/icon/info.svg">
+
+          <div id="ctrl_back_container">
+            <img id="ctrl_back" src="./textures/icon/back.svg">
+            <span>BACK</span>
+          </div>
+        </div>
       </div>
     </nav>
 
-    <!-- <div id="animation_dropdown">
-      <select name="animation_box">
-        <option value="anime@idle.glb">Idle</option>
-        <option value="anime@running.glb">Running</option>
-        <option value="anime@dance.glb">Dance</option>
-      </select>
-    </div> -->
+    <div id="tutorial_info_container">
+      <h1>How to use abcdefg</h1>
+      <p>"Ukrainian President Volodymyr Zelensky has visited the frontline city of Bakhmut."</p>
+
+      <img src="./textures/tutorial/tutorial_main.jpg">
+      <h1>ESNX LFG</h1>
+      <p>Coman’s last post on Instagram, issued after the World Cup semifinal last week.” </p>
+
+    </div>
 
     <canvas id="main_app"></canvas>
     

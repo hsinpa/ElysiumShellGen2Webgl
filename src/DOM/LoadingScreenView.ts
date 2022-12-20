@@ -6,14 +6,14 @@ export default class CustomLoadingScreen implements ILoadingScreen {
     public loadingUIBackgroundColor: string;
     private m_htmlContainer : HTMLElement;
     private m_percentSVG : HTMLImageElement;
+    private m_percentSpan : HTMLSpanElement;
 
     constructor(public loadingUIText: string) {
+        this.m_percentSpan = window.document.querySelector<HTMLSpanElement>("#loading_ui .load_container span");
         this.m_htmlContainer = window.document.getElementById("loading_ui");
         this.m_percentSVG = window.document.querySelector<HTMLImageElement>("#loading_ui #esnx_logo_mask rect");
-        console.log(this.m_percentSVG);
     }
 
-    
     /**
      *
      *
@@ -22,7 +22,10 @@ export default class CustomLoadingScreen implements ILoadingScreen {
      */
     public progressUpdate(percent: number) {
         this.m_percentSVG.setAttribute("y",  Math.floor( ( 1 - percent) * 512).toString() );
-        // this.m_percentSpan.innerHTML = percent.toFixed(2) + "%";
+
+        let span_message = (percent < 0.95) ? "LOADING" + percent.toFixed(2) + "%" : "COMPLETE!";
+
+        this.m_percentSpan.innerHTML = span_message;
         // this.m_percentBar.style.width = (percent*100) + "%";
     }
 

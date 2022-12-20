@@ -16,24 +16,55 @@ html, body {
   height: 100%;
   z-index: 1;
 }
+
+#tutorial_info_container {
+  height: 100vh;
+  position: fixed;
+  top:0rem;
+  right:0rem;
+  background-color: black;
+  display: none;
+  padding: 5.5rem 1rem;
+
+  h1 {
+    color: $color_green;
+    font-family: MicroSquareEx;
+    font-weight: 500;
+    font-size: 1.4rem;
+  }
+
+  img {
+    @media only screen and (max-width: 600px) {
+      max-width: 25rem;
+    }
+  }
+
+  p {
+    color: $color_white;
+    font-family: MicroSquareEx;
+    font-size: 0.8rem;
+  }
+}
+
 .contral_bar_canvas {
   position: fixed;
   //width: 10rem;
   top:0rem;
   left:0rem;
   height: 100vh;
+  
   //width: 6.2rem;
   //background-color: black;
 
   .contral_bar {
     padding-top:2rem;
-    padding-left:2.2rem;
+    padding-left:2.5rem;
   
     #ctrl_mode_change {
       animation: skew 3s infinite;
     }
     img {
-      width: 2rem;
+      width: 2.25rem;
       filter: $filter_white;
     }
 
@@ -48,9 +79,9 @@ html, body {
     .control_bar_expand {
       display: none;
       hr {
-        width: 2rem;
-        margin-left:0px;
-        border: 1px solid gray;
+        width: 3.75rem;
+        margin-left:-1rem;
+        border: 1px solid #4E4E4E;
         display: block;
       }
 
@@ -61,8 +92,8 @@ html, body {
 
       .animation_container {
         display: none;
-        margin-left: -0.5rem;
-        height: 9rem;
+        margin-left: -0.75rem;
+        height: 13rem;
         //width: 5rem;
          
         ::before {
@@ -78,7 +109,7 @@ html, body {
           color: white;
           padding: 0.13rem 0rem;
           display: block;
-          font-size: 0.6rem;
+          font-size: 0.7rem;
           font-family: MicroSquareEx;
           cursor: pointer;
         }
@@ -90,6 +121,21 @@ html, body {
         span:hover {
             color: $color_green;
         }
+      }
+    }
+
+    #ctrl_back_container{
+      position: fixed;
+      bottom:2.5rem;
+      left:2.4rem;
+      
+      img {
+        padding: 0px;
+      }
+      span {
+        font-family: MicroSquareEx;
+        margin-left: -0.25rem;
+        font-size: 0.75rem;
       }
     }
   }
@@ -150,6 +196,7 @@ html, body {
       color: white;
       text-align: center;
       display:block;
+      font-family: MicroSquareEx;
     }
 
     svg {
