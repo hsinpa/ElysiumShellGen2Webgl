@@ -18,23 +18,20 @@ export const ForegroundPostProcessingFrag : string = `
     
     uniform sampler2D textureSampler;
     uniform sampler2D u_noiseTex;
-    uniform sampler2D u_depthTex;
     uniform float u_aspect_ratio;
 
     uniform float u_strength;
 
     void main() {
         
-        float clamp_strength = clamp(u_strength, 0.001, 1.0);
+        float clamp_strength = clamp(u_strength, 0.01, 1.0);
         vec4 front_texture = texture2D(textureSampler, vUV);
         vec4 noise_texture = texture2D(u_noiseTex, vec2(vUV.x * 5.0 * u_aspect_ratio, vUV.y * 5.0 ));
-        vec4 depth_texture = texture2D(u_depthTex, vUV);
-
+        
         vec4 col = front_texture;
         vec4 borderCol = vec4(0.3, 0.6, 0.9, 1.0);
 
         float diff = abs(clamp_strength - noise_texture.r);
-        gl_FragColor = vec4(depth_texture.r, depth_texture.r, depth_texture.r, 1.0);
 
         if ((front_texture.r > 0.0001 || front_texture.g > 0.0001 || front_texture.b > 0.0001) && front_texture.w > 0.001) {
 
@@ -48,9 +45,44 @@ export const ForegroundPostProcessingFrag : string = `
                 return;
             }
         }
+
+        
         discard;
     }
 `;
+
+export const FrameDecorationPostProcessingFrag : string = `
+    in vec2 vUV;
+    
+    uniform sampler2D textureSampler;
+    uniform sampler2D u_frameTex;
+    uniform sampler2D u_backgroundTex;
+
+    uniform float u_aspect_ratio;
+
+    void main() {
+        vec4 front_texture = texture2D(textureSampler, vUV);
+        vec4 background_texture = texture2D(u_backgroundTex, vUV);
+
+        float frame_uv_x = (vUV.x * u_aspect_ratio);
+        float frame_uv_remaining =  (1.0 / u_aspect_ratio);
+        frame_uv_x = frame_uv_x ;
+        vec4 frame_texture = texture2D(u_frameTex, vec2(vUV.x, vUV.y));
+        vec4 frame_corner_col = texture2D(u_frameTex, vec2(0.1, 0.1));
+
+        if (frame_texture.a > 0.5) {
+            gl_FragColor = frame_texture;
+
+            return;
+        }
+
+        vec4 final_output = mix(background_texture, front_texture, front_texture.w);
+
+        gl_FragColor = final_output;
+    }
+`;
+
+
 
 export const UniversalVert : string = `
     precision mediump float;

@@ -10,16 +10,19 @@ type SKAnimationType = {
 type NormalClickEvent = { (): void; };
 
 export default class ControlBarView {
-
     private _menu_flag: boolean;
-    private _skeleton_animation_flag: boolean;
+    private _animation_container_flag: boolean;
+    private _frame_container_flag: boolean;
+
     private _info_panel_flag: boolean;
+    private _frame_foreground_flag: boolean;
 
     private _skeletonAnimationCallback: SKAnimationType;
     private _refreshBtnCallback: NormalClickEvent;
     private _stateRotateCallback: (enable: boolean) => void;
     private _screenshotBtnCallback: NormalClickEvent;
     private _animSpeedBtnCallback:  (speed: number) => void;
+    private _frameBtnCallback:  (frame_name: string, is_enable : boolean) => void;
 
     //Side Btn or horizontal line
     private _backBtnDom : HTMLBaseElement;
@@ -29,6 +32,7 @@ export default class ControlBarView {
     private _bottomHoriLineDom: HTMLBaseElement;
     private _screenshotDom: HTMLBaseElement;
     private _infoDom: HTMLBaseElement;
+    private _frameBtnDom: HTMLBaseElement;
 
     private _animationSpeedSet = [1, 2, 0.5];
     private _animationSpeedIndex = 0;
@@ -37,23 +41,23 @@ export default class ControlBarView {
 
     constructor( ) {
         this._menu_flag = false;
-        this._skeleton_animation_flag = false;
+        this._animation_container_flag = false;
 
         this.RegisterBtnEvent();
-        this.SetAnimationBarStyle();
     }
 
     public SetCallback(skeletonAnimationCallback: SKAnimationType, stateRotateCallback: (enable: boolean) => void, refreshBtnCallback: NormalClickEvent, 
-        screenshotCallback : NormalClickEvent, animSpeedCallback : (speed: number) => void) {
+        screenshotCallback : NormalClickEvent, animSpeedCallback : (speed: number) => void, frameBtnCallback : (frame_name: string, is_enable : boolean) => void) {
         this._skeletonAnimationCallback = skeletonAnimationCallback;
         this._stateRotateCallback = stateRotateCallback;
         this._refreshBtnCallback = refreshBtnCallback;
         this._screenshotBtnCallback = screenshotCallback;
         this._animSpeedBtnCallback = animSpeedCallback;
+        this._frameBtnCallback = frameBtnCallback;
     }
 
-    public SetSkeletonAnimationStyle(selfElement: HTMLSpanElement) {
-        let span_btn_dom = document.querySelectorAll<HTMLSpanElement>(".animation_container span");
+    public SetContainerSelectStyle(selfElement: HTMLElement, query: string) {
+        let span_btn_dom = document.querySelectorAll<HTMLElement>(query);
             if (span_btn_dom != null) 
                 span_btn_dom.forEach(x => {
                     x.classList.remove("selected");
@@ -93,23 +97,25 @@ export default class ControlBarView {
                     x.addEventListener("click", () => this.OnSkeletonAnimationSpanClick(x));
             });
 
+        let frame_btn_doms = document.querySelectorAll<HTMLImageElement>(".frame_container img");
+            if (frame_btn_doms != null) 
+            frame_btn_doms.forEach(x => {
+                    x.addEventListener("click", () => this.OnSingleFrameButtonClick(x));
+            });
         
         this._screenshotDom = document.querySelector("#ctrl_screenshot");
         this._bottomHoriLineDom = document.querySelector("#ctrl_info_line");
         this._backBtnDom = document.querySelector("#ctrl_back_container");
         this._infoDom = document.querySelector("#ctrl_info");
+        this._frameBtnDom = document.querySelector("#ctrl_frame");
 
         this.SetClickButtonEvent("#ctrl_screenshot", () => this._screenshotBtnCallback() );
         this.SetClickButtonEvent("#ctrl_back", () => {
-            this.PreExpandBtnAction(false);
-            
-            if (this._skeleton_animation_flag)
-                this.OnSkeletonAnimationExpandClick();
-
-            this.SetInfoPanelVisibility(false);
+            this.ResetUI();
         } );
 
         this.SetClickButtonEvent("#ctrl_info", this.OnInfoBtnClick.bind(this));
+        this.SetClickButtonEvent("#ctrl_frame", this.OnFrameForegroundClick.bind(this));
         //this.SetClickButtonEvent("#ctrl_animation_speed", this.OnAnimationSpeedChange.bind(this));
     }
 
@@ -136,11 +142,7 @@ export default class ControlBarView {
         let expand_dom = document.querySelector<HTMLBaseElement>(".control_bar_expand");
         if (expand_dom != null) expand_dom.style.display = (this._menu_flag) ? "none" : "block"; 
 
-        if (this._skeleton_animation_flag)
-            this.OnSkeletonAnimationExpandClick();
-
-        this.SetInfoPanelVisibility(false);
-        this.PreExpandBtnAction(false);
+        this.ResetUI();
 
         this._menu_flag = !this._menu_flag;
     }
@@ -159,24 +161,45 @@ export default class ControlBarView {
 
     private OnSkeletonAnimationExpandClick() {
         let animation_container = document.querySelector<HTMLBaseElement>(".animation_container");
-        if (animation_container != null) animation_container.style.display = (this._skeleton_animation_flag) ? "none" : "block"; 
-        this._skeleton_animation_flag = !this._skeleton_animation_flag;
+        if (animation_container != null) animation_container.style.display = (this._animation_container_flag) ? "none" : "block"; 
+        this._animation_container_flag = !this._animation_container_flag;
 
-        this.PreExpandBtnAction(this._skeleton_animation_flag, [this._animationBtnDom]);
+        this.PreExpandBtnAction(this._animation_container_flag, [this._animationBtnDom]);
     }
 
     private OnSkeletonAnimationSpanClick(selfElement: HTMLSpanElement) {
-        this.SetSkeletonAnimationStyle(selfElement);
+        this.SetContainerSelectStyle(selfElement, ".animation_container span");
         let dataValue = selfElement.getAttribute("data-value");
 
         if (this._skeletonAnimationCallback != null && dataValue != null)
             this._skeletonAnimationCallback(dataValue);
     }
 
-    private SetAnimationBarStyle() {
-        let animation_container = document.querySelector<HTMLBaseElement>(".animation_container");
-        if (animation_container == null) return;
+    private OnFrameAnimationExpandClick( ) {
+        let frame_container = document.querySelector<HTMLBaseElement>(".frame_container");
+        if (frame_container != null) frame_container.style.display = (this._frame_container_flag) ? "none" : "block"; 
+        this._frame_container_flag = !this._frame_container_flag;
 
+        console.log(this._frame_container_flag);
+
+        this.PreExpandBtnAction(this._frame_container_flag, [this._frameBtnDom]);
+    }
+
+    private async OnSingleFrameButtonClick(selfElement: HTMLImageElement) {
+        let dataValue = selfElement.getAttribute("data-value");
+        let is_selected = selfElement.classList.contains("selected");
+
+        if (!is_selected) {
+            this.SetContainerSelectStyle(selfElement, ".frame_container img");
+        } else
+            selfElement.classList.remove("selected");
+
+        if (this._frameBtnCallback != null && dataValue != null) {
+            //Clear previous state first
+            this._frameBtnCallback(dataValue, false);
+
+            this._frameBtnCallback(dataValue, !is_selected);
+        }
     }
 
     private OnAnimationSpeedChange(dom: HTMLSpanElement) {
@@ -186,6 +209,16 @@ export default class ControlBarView {
         this._animSpeedBtnCallback(speed);
 
         dom.innerHTML = speed + "x";
+    }
+
+    private OnFrameForegroundClick() {
+
+        //this._frame_foreground_flag = !this._frame_foreground_flag;
+
+        this.OnFrameAnimationExpandClick();
+        
+        // if (this._frameBtnCallback != null)
+        //     this._frameBtnCallback(this._frame_foreground_flag);
     }
 
     private SetClickButtonEvent<T extends Element>(query: string, callback : (dom: T) => void )  {
@@ -227,6 +260,7 @@ export default class ControlBarView {
         this._refreshBtnDom.style.display = stylesheet;
         this._screenshotDom.style.display = stylesheet;
         this._infoDom.style.display = stylesheet;
+        this._frameBtnDom.style.display = stylesheet;
 
         this._backBtnDom.style.display = revert_stylesheet
         
@@ -235,6 +269,18 @@ export default class ControlBarView {
                 x.style.display = "block";
             });
         }
+    }
+
+    private ResetUI() {
+        if (this._animation_container_flag)
+            this.OnSkeletonAnimationExpandClick();
+
+        if (this._frame_container_flag)
+            this.OnFrameAnimationExpandClick();
+
+        this.SetInfoPanelVisibility(false);
+
+        this.PreExpandBtnAction(false);
     }
     //#endregion
 }

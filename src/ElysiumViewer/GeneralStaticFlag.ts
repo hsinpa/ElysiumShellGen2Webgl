@@ -8,7 +8,7 @@ export const MaterialParameters = Object.freeze({
 
     BackgroundTex: "u_backgroundTex",
     NoiseTex: "u_noiseTex",
-    DepthTex: "u_depthTex",
+    FrameTex: "u_frameTex",
     Strength: "u_strength",
 });
 
@@ -19,6 +19,9 @@ export const TexturePath = Object.freeze({
     BG_OLW: ".\\textures\\race_background\\BG_OLW-min.jpg",
 
     NoiseTexture: ".\\textures\\displacement_noise.jpg",
+
+    FrameDefaultTexture: ".\\textures\\frame\\raw\\frame-1-min.png",
+    FrameBaseTexture: ".\\textures\\frame\\raw\\",
 
     TransparentGround: ".\\textures\\backgroundGround.png",
 });

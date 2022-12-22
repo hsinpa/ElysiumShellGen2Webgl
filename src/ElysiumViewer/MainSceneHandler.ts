@@ -7,9 +7,10 @@ import { BackgroundMaterial, Effect, Texture } from "@babylonjs/core/Materials";
 import { Color4, Vector3 } from "@babylonjs/core/Maths";
 import { AbstractMesh, MeshBuilder } from "@babylonjs/core/Meshes";
 import { PostProcess } from "@babylonjs/core/PostProcesses/postProcess";
+import { PassPostProcess } from "@babylonjs/core/PostProcesses/passPostProcess";
 import { Scene } from "@babylonjs/core/scene";
 import LoadingScreenView from "../DOM/LoadingScreenView";
-import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag} from "../Shader/GeneralShaderStatic";
+import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag, FrameDecorationPostProcessingFrag} from "../Shader/GeneralShaderStatic";
 import EventSystem from "../Utility/EventSystem";
 import AnimAssetManager from "./AnimAssetManager";
 import {EventTag, TexturePath, MaterialParameters, AnimationSet} from "./GeneralStaticFlag";
@@ -21,12 +22,16 @@ let FrontPostStrength: number = 0;
 export default class MainSceneHandler {
     private m_backPostprocess: PostProcess;
     private m_frontPostprocess: PostProcess;
+    private m_framePostprocess: PostProcess;
+
     private m_mainScene : Scene;
     private m_backgroundScene : Scene;
     private m_loadScreenView : LoadingScreenView;
     private m_canvasDOM: HTMLCanvasElement;
     private m_engine: Engine;
     private m_mainCam: ArcRotateCamera;
+    private m_bgCam: ArcRotateCamera;
+
     private m_eventSystem: EventSystem;
 
     private m_animAssetManager : AnimAssetManager;
@@ -46,6 +51,10 @@ export default class MainSceneHandler {
 
     public get Camera() {
         return this.m_mainCam;
+    }
+
+    public get AspectRatio() {
+        return this.m_canvasDOM.width / this.m_canvasDOM.height;
     }
 
     constructor(engine: Engine, canvasDOM: HTMLCanvasElement, loadScreenView: LoadingScreenView, eventSystem: EventSystem) {
@@ -84,11 +93,36 @@ export default class MainSceneHandler {
         }
     }
 
+    public SetFramePostProcessingEffect(texture_path: string) {
+        let self = this;
+
+        if ((texture_path == null || texture_path == "")) {
+            if (this.m_framePostprocess != null)
+                this.m_framePostprocess.dispose();
+            this.m_framePostprocess = null;    
+            return;
+        }
+
+        let frame_tex_path = TexturePath.FrameBaseTexture + texture_path;
+        var postProcess0 = new PassPostProcess("Scene copy", 1.0, this.m_bgCam);
+
+        Effect.ShadersStore['FrameFragmentShader'] = FrameDecorationPostProcessingFrag;
+        this.m_framePostprocess = new PostProcess('', 'Frame', [MaterialParameters.AspectRatio], 
+                                                                    [MaterialParameters.FrameTex, MaterialParameters.BackgroundTex], 1, this.m_mainCam);
+
+        let frameTexture = new Texture(frame_tex_path, this.m_mainScene, false, true);
+        this.m_framePostprocess.onApply = function (effect) {
+            effect.setTextureFromPostProcess(MaterialParameters.BackgroundTex, postProcess0);
+            effect.setTexture(MaterialParameters.FrameTex, frameTexture);
+            effect.setFloat(MaterialParameters.AspectRatio, self.AspectRatio);
+        };
+    }
+
     private async SetBackgroundScene(bg_scene: Scene, canvas_width: number, canvas_height: number) {
-        const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, Vector3.Zero(), bg_scene);
+        this.m_bgCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, Vector3.Zero(), bg_scene);
         
         Effect.ShadersStore['BackgroundFragmentShader'] = BackgroundPostProcessingFrag;
-        this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, camera);
+        this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, this.m_bgCam);
         
         this.m_backPostprocess.onApply = function (effect) {
             let bgTexture = new Texture(TexturePath.BG_GDN, bg_scene, false, false);
@@ -122,11 +156,11 @@ export default class MainSceneHandler {
 
         this.m_mainCharMesh.IteratorOps((x) => x.visibility = 1 );
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         engine.hideLoadingUI();
-
-        this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
     }
 
     private SetFrontScene(glbMesh: GLBCharacterMesh, scene: Scene, canvasDOM: HTMLCanvasElement) {
@@ -143,13 +177,14 @@ export default class MainSceneHandler {
         this.m_mainCam.minZ = 5;
         this.m_mainCam.fov = 0.166;
 
-        let depthTex = scene.enableDepthRenderer(this.m_mainCam);
+        // let depthTex = scene.enableDepthRenderer(this.m_mainCam);
         let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
+
         Effect.ShadersStore['ForegroundFragmentShader'] = ForegroundPostProcessingFrag;
         this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength, MaterialParameters.AspectRatio], 
-                                                                    [MaterialParameters.NoiseTex, MaterialParameters.DepthTex], 1, this.m_mainCam);
+                                                                    [MaterialParameters.NoiseTex], 1, this.m_mainCam);
+
         this.m_frontPostprocess.onApply = function (effect) {
-            effect.setTexture(MaterialParameters.DepthTex, depthTex.getDepthMap());
             effect.setTexture(MaterialParameters.NoiseTex, noiseTexture);
             effect.setFloat(MaterialParameters.AspectRatio, canvasDOM.clientWidth  / canvasDOM.clientHeight);
             effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
@@ -175,7 +210,6 @@ export default class MainSceneHandler {
         var gl = new GlowLayer("glow", scene);
         gl.intensity = 1;
     }
-
 
     private OnFrontPostProcessComplete(main_scene: Scene) {
         this.m_frontPostprocess.dispose();

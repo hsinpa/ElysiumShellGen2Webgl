@@ -90,12 +90,7 @@ html, body {
         padding: 0.5rem 0rem;
       }
 
-      .animation_container {
-        display: none;
-        margin-left: -0.75rem;
-        height: 13rem;
-        //width: 5rem;
-         
+      .scrollbar_container {
         ::before {
           direction:rtl;
           background-color: $color_green;
@@ -103,6 +98,14 @@ html, body {
         .simplebar-track.simplebar-vertical {
           left:-1rem;
         }
+      }
+
+      .animation_container {
+        display: none;
+        margin-left: -0.75rem;
+        height: 13rem;
+        //width: 5rem;
+        
 
         span {
           direction:ltr;
@@ -122,7 +125,31 @@ html, body {
             color: $color_green;
         }
       }
-    }
+
+      .frame_container {
+        display: none;
+        height: 14rem;
+        margin-left: -0.25rem;
+
+        img {
+          filter: none;
+          width: 2.5rem;
+          padding: 0.0rem 0rem;
+          margin-bottom: 0.75rem;
+          border: 0.15rem outset $color_white;
+          border-radius: 12px;
+          }
+
+          img:hover{
+            border: 0.15rem outset green;
+          }
+
+        .selected {
+          filter: none;
+          border: 0.15rem outset $color_green;
+        }
+      }
+  }
 
     #ctrl_back_container{
       position: fixed;

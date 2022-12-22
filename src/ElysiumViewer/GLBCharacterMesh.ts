@@ -9,7 +9,7 @@ export default class GLBCharacterMesh {
 
     public get IsValid() {return this.m_meshs != null }
 
-    public get GetMainMesh() {return this.m_meshs.find(x=> x.name != "__root__"); }
+    public get GetMainMesh() {return this.m_meshs.find(x=> x.name != "__root__" && x.skeleton != null); }
 
     IteratorOps(ops : (mesh: AbstractMesh) => void) {
         if (!this.IsValid || ops == null) return;

@@ -12,7 +12,7 @@ import GLBCharacterMesh from './GLBCharacterMesh';
 
 export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: LoadingScreenView) {
         //Load mesh
-        let glbPath = "./assets/test_robots/H0313GDNs-B0213GDNn-A0513IVDn-L0713IVDn-EQP26n-x2048.glb";
+        let glbPath = "./assets/test_robots/H1317IVDs-B0117IVDs-A1017IVDs-L0117GDNs-EQP15n-x2048-APoseNoFreeze.glb";
         let glbMesh = await SceneLoader.ImportMeshAsync("", glbPath, undefined, p_scene, function (progressEvent) { 
             progressEvent.lengthComputable
             console.log(`GLB Load ${progressEvent.loaded}, Total ${progressEvent.total}`);

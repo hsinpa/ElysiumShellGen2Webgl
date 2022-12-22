@@ -63,8 +63,6 @@ export default class AnimAssetManager {
         }
         
         for (let import_anim of cloneAnimeGroup.targetedAnimations) {
-            //console.log(import_anim.target);
-
             if (dictTable.containsKey(import_anim.target.name)) {
                 let tn = dictTable.getValue(import_anim.target.name);
                 newAnimGroup.addTargetedAnimation(import_anim.animation, tn);         

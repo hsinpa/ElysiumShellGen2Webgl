@@ -19,6 +19,8 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
   if (main_canvas != null) {
     let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement, p_eventSystem);
 
+    console.log( "Aspect Ratio " + main_canvas.clientWidth  / main_canvas.clientHeight);
+
     p_eventSystem.ListenToEvent(EventTag.BabylonAppReady, () => {
       SetControlBar(babylonApp);
       babylonApp.SetMode(ModeEnum.FreeStyle);
@@ -56,7 +58,7 @@ let SetControlBar = function(app: BabylonApp) {
     await new Promise(resolve => setTimeout(resolve, 200));
 
     let idle_span_dom : HTMLSpanElement = document.querySelector('.animation_container span[data-value="idle.glb"]');
-    if (idle_span_dom != null) control_bar.SetSkeletonAnimationStyle(idle_span_dom);
+    if (idle_span_dom != null) control_bar.SetContainerSelectStyle(idle_span_dom, ".animation_container span");
     
     app.Mode.Animate(app.IsAnimateMode);
     app.SetAnimationMode(app.IsAnimateMode);
@@ -71,6 +73,13 @@ let SetControlBar = function(app: BabylonApp) {
   //Animation speed
   (speed : number) => {
     app.MainScene.SetAnimationSpeed(speed);
-  }
+  },
+  
+  //Frame foreground
+  (frame_name: string, is_enable: boolean) => {
+
+    app.MainScene.SetFramePostProcessingEffect( is_enable ? frame_name : null);
+
+  },
   );
 }
