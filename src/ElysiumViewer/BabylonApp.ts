@@ -1,7 +1,7 @@
 import  "@babylonjs/loaders/glTF";
 import {Engine} from '@babylonjs/core/Engines';
 import {Scene} from '@babylonjs/core/scene';
-import {Vector3, Color4, Matrix} from '@babylonjs/core/Maths';
+import {Vector3, Color4, Matrix, Quaternion} from '@babylonjs/core/Maths';
 import { Tools } from "@babylonjs/core/";
 import {Clamp} from '../Utility/UtilityFunc';
 import WebglUtility from '../Utility/WebglUtility';
@@ -121,9 +121,9 @@ export default class BabylonApp {
         
         if (pickResult.hit) {
             let bounding = this.m_mainScene.CharacterMesh.GetMainMesh.getBoundingInfo();
-
-
-            this.m_emojiSystem.ShowRandomEmoji(new Vector3(0, bounding.maximum.y,0 ), this.m_mainScene.CharacterMesh.GetMainMesh.absoluteRotationQuaternion);
+            
+            this.m_emojiSystem.ShowRandomEmoji(new Vector3(0, bounding.maximum.y,0 ), this.m_mainScene.Camera.absoluteRotation);
+            //this.m_emojiSystem.ShowRandomEmoji(new Vector3(0, bounding.maximum.y,0 ), this.m_mainScene.CharacterMesh.GetMainMesh.absoluteRotationQuaternion);
         }
     }
 

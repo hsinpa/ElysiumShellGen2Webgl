@@ -56,6 +56,8 @@ export class EmojiSystem {
         //this.m_mesh.material  = this.m_shareMat;
         this.m_mesh.position = position;
         this.m_mesh.rotationQuaternion = rotation;
+        this.m_mesh.scaling = new Vector3(-1, -1, 1);
+
         this.m_mesh.setEnabled(true);
     }
 
