@@ -59,16 +59,26 @@ export const FrameDecorationPostProcessingFrag : string = `
     uniform sampler2D u_backgroundTex;
 
     uniform float u_aspect_ratio;
-
+    uniform float u_aspect_ratio_revert;
+    
     void main() {
         vec4 front_texture = texture2D(textureSampler, vUV);
         vec4 background_texture = texture2D(u_backgroundTex, vUV);
 
         float frame_uv_x = (vUV.x * u_aspect_ratio);
-        float frame_uv_remaining =  (1.0 / u_aspect_ratio);
-        frame_uv_x = frame_uv_x ;
-        vec4 frame_texture = texture2D(u_frameTex, vec2(vUV.x, vUV.y));
+        float frame_uv_remaining =  (u_aspect_ratio - 1.0) * 0.5;
+        float frame_uv_hide =  ( 1.0 - u_aspect_ratio_revert) * 0.5 ;
+
+        frame_uv_x = frame_uv_x - frame_uv_remaining;
+        vec4 frame_texture = texture2D(u_frameTex, vec2(frame_uv_x, vUV.y));
         vec4 frame_corner_col = texture2D(u_frameTex, vec2(0.1, 0.1));
+        vec4 black_col = vec4(0.0, 0.0, 0.0, 1.0);
+
+        if (vUV.x < frame_uv_hide || vUV.x > 1.0 - frame_uv_hide) {
+            gl_FragColor = black_col;
+
+            return;
+        }
 
         if (frame_texture.a > 0.5) {
             gl_FragColor = frame_texture;

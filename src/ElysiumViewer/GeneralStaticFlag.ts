@@ -5,6 +5,7 @@ export const EventTag = Object.freeze({
 export const MaterialParameters = Object.freeze({ 
     MainTex: "u_mainTex",
     AspectRatio: "u_aspect_ratio",
+    AspectRatioRevert: "u_aspect_ratio_revert",
 
     BackgroundTex: "u_backgroundTex",
     NoiseTex: "u_noiseTex",

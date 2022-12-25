@@ -107,12 +107,13 @@ export default class MainSceneHandler {
         var postProcess0 = new PassPostProcess("Scene copy", 1.0, this.m_bgCam);
 
         Effect.ShadersStore['FrameFragmentShader'] = FrameDecorationPostProcessingFrag;
-        this.m_framePostprocess = new PostProcess('', 'Frame', [MaterialParameters.AspectRatio], 
+        this.m_framePostprocess = new PostProcess('', 'Frame', [MaterialParameters.AspectRatio, MaterialParameters.AspectRatioRevert], 
                                                                     [MaterialParameters.FrameTex, MaterialParameters.BackgroundTex], 1, this.m_mainCam);
 
         let frameTexture = new Texture(frame_tex_path, this.m_mainScene, false, true);
         this.m_framePostprocess.onApply = function (effect) {
             effect.setTextureFromPostProcess(MaterialParameters.BackgroundTex, postProcess0);
+            effect.setFloat(MaterialParameters.AspectRatioRevert, self.m_canvasDOM.clientHeight  / self.m_canvasDOM.clientWidth);
             effect.setTexture(MaterialParameters.FrameTex, frameTexture);
             effect.setFloat(MaterialParameters.AspectRatio, self.AspectRatio);
         };

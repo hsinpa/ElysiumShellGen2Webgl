@@ -20,6 +20,7 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
     let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement, p_eventSystem);
 
     console.log( "Aspect Ratio " + main_canvas.clientWidth  / main_canvas.clientHeight);
+    console.log( "Aspect Ratio Revert" + main_canvas.clientHeight  / main_canvas.clientWidth);
 
     p_eventSystem.ListenToEvent(EventTag.BabylonAppReady, () => {
       SetControlBar(babylonApp);

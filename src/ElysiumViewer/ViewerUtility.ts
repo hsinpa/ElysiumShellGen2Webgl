@@ -37,7 +37,7 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
         //     this.m_currentAnimation =  this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
         // }
 
-        rootMesh.position =  new Vector3(0, 1.35, 0);
+        rootMesh.position =  new Vector3(0, -0.15, 0);
         
         return glbCMesh;
     }
@@ -48,6 +48,7 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
 
         let animPath = "./assets/anime/"+anime_id;
 
+        console.log(animPath);
         await animAssetManager.LoadAnimation(anime_id, animPath);
 
         let target_anime_group = animAssetManager.GetAnimationAsset(anime_id);

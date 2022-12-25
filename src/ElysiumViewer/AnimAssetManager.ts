@@ -20,6 +20,7 @@ export default class AnimAssetManager {
 
         });
 
+        console.log(loadContainer.animationGroups);
         if (loadContainer.animationGroups.length > 0) {
             loadContainer.animationGroups[0].name = asset_id;        
             this._containerTable.setValue(asset_id, loadContainer);    
