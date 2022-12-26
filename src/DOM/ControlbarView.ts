@@ -34,6 +34,8 @@ export default class ControlBarView {
     private _infoDom: HTMLBaseElement;
     private _frameBtnDom: HTMLBaseElement;
 
+    private _infoDomContainer: HTMLBaseElement;
+
     private _animationSpeedSet = [1, 2, 0.5];
     private _animationSpeedIndex = 0;
 
@@ -42,6 +44,8 @@ export default class ControlBarView {
     constructor( ) {
         this._menu_flag = false;
         this._animation_container_flag = false;
+
+        this._infoDomContainer = document.querySelector("#tutorial_info_container");
 
         this.RegisterBtnEvent();
     }
@@ -116,10 +120,16 @@ export default class ControlBarView {
 
         this.SetClickButtonEvent("#ctrl_info", this.OnInfoBtnClick.bind(this));
         this.SetClickButtonEvent("#ctrl_frame", this.OnFrameForegroundClick.bind(this));
+
+        window.addEventListener("resize", (event) => {
+            if (this._info_panel_flag) this.UpdateInfoPanelWidthRatio();
+        });
         //this.SetClickButtonEvent("#ctrl_animation_speed", this.OnAnimationSpeedChange.bind(this));
     }
 
     private OnMenuBtnClick() {
+        let menu_icon : HTMLImageElement = document.querySelector("#ctrl_mode_change");
+
         let closeStyle = {
             width:  this._leftCtrlBarExpandSize + 'rem',
             backgroundColor: "#000000", 
@@ -138,6 +148,8 @@ export default class ControlBarView {
                 easing: 'easeInOutQuad'
             })
         );
+
+        this.SetIconSelectStyle(menu_icon, !this._menu_flag);
 
         let expand_dom = document.querySelector<HTMLBaseElement>(".control_bar_expand");
         if (expand_dom != null) expand_dom.style.display = (this._menu_flag) ? "none" : "block"; 
@@ -164,6 +176,8 @@ export default class ControlBarView {
         if (animation_container != null) animation_container.style.display = (this._animation_container_flag) ? "none" : "block"; 
         this._animation_container_flag = !this._animation_container_flag;
 
+        this.SetIconSelectStyle(this._animationBtnDom, this._animation_container_flag);
+
         this.PreExpandBtnAction(this._animation_container_flag, [this._animationBtnDom]);
     }
 
@@ -180,7 +194,7 @@ export default class ControlBarView {
         if (frame_container != null) frame_container.style.display = (this._frame_container_flag) ? "none" : "block"; 
         this._frame_container_flag = !this._frame_container_flag;
 
-        console.log(this._frame_container_flag);
+        this.SetIconSelectStyle(this._frameBtnDom, this._frame_container_flag);
 
         this.PreExpandBtnAction(this._frame_container_flag, [this._frameBtnDom]);
     }
@@ -236,15 +250,21 @@ export default class ControlBarView {
     }
 
     private SetInfoPanelVisibility(is_show: boolean) {
-        let displacement = 1.9;
-        let infobar_width = (window.innerWidth * 0.0625) - (this._leftCtrlBarExpandSize + displacement);
 
-        let info_container : HTMLBaseElement = document.querySelector("#tutorial_info_container");
+        this._infoDomContainer.style.display = is_show ? "block" : "none";
+        this.UpdateInfoPanelWidthRatio();
 
-        info_container.style.display = is_show ? "block" : "none";
-        info_container.style.width = infobar_width +"rem";
-        
+        this.SetIconSelectStyle(this._infoDom, is_show);
+
         this._info_panel_flag = is_show;
+    }
+
+    private UpdateInfoPanelWidthRatio() {
+        let displacement = 0;
+        let infobar_width = (window.innerWidth * 0.0625) - (this._leftCtrlBarExpandSize + displacement);
+        this._infoDomContainer.style.width = infobar_width +"rem";
+
+        console.log("UpdateInfoPanelWidthRatio");
     }
 
     //#region  UI Expand Ctrl
@@ -268,6 +288,14 @@ export default class ControlBarView {
             exceptions.forEach(x => {
                 x.style.display = "block";
             });
+        }
+    }
+
+    private SetIconSelectStyle(icon : HTMLElement, is_selected: boolean) {
+        if (is_selected) {
+            icon.classList.add("selected");
+        } else {
+            icon.classList.remove("selected");
         }
     }
 

@@ -1,0 +1,71 @@
+#tutorial_info_container {
+    height: 100vh;
+    position: fixed;
+    top:0rem;
+    right:0rem;
+    background-color: black;
+    display: none;
+    padding: 5rem 0rem;
+  
+    h1 {
+      color: $color_green;
+      font-family: MicroSquareEx;
+      font-weight: 500;
+      font-size: 1.4rem;
+    }
+  
+    img {
+      @media only screen and (max-width: 600px) {
+        max-width: 25rem;
+      }
+    }
+  
+    p {
+      color: $color_white;
+      font-family: MicroSquareEx;
+      font-size: 0.8rem;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: row;
+        
+        section {
+            padding: 0rem 1rem;
+        }
+
+        .camera_ctrl {
+            .container_row {
+                margin: 0rem 0rem 2rem 0rem;            
+            }
+
+            img {
+                width: 5rem;
+            }
+        }
+
+        .icon_ctrl {
+            .container_row {
+                margin: 0rem 0rem 0.5rem 0rem;            
+            }
+
+            img {
+                width: 2rem;
+                filter: $filter_white;
+                padding: 0rem 0.3rem;
+            }
+        }
+        
+        .container_row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            span {
+                color: $color_white;
+                font-family: MicroSquareEx;
+                font-size: 0.8rem;
+            }
+        }
+    }
+  }

@@ -1,5 +1,6 @@
 @import 'animation';
 @import 'attributes';
+@import 'info_pages';
 
 html, body {
   height: 100%;
@@ -15,35 +16,6 @@ html, body {
   width: 100%;
   height: 100%;
   z-index: 1;
-}
-
-#tutorial_info_container {
-  height: 100vh;
-  position: fixed;
-  top:0rem;
-  right:0rem;
-  background-color: black;
-  display: none;
-  padding: 5.5rem 1rem;
-
-  h1 {
-    color: $color_green;
-    font-family: MicroSquareEx;
-    font-weight: 500;
-    font-size: 1.4rem;
-  }
-
-  img {
-    @media only screen and (max-width: 600px) {
-      max-width: 25rem;
-    }
-  }
-
-  p {
-    color: $color_white;
-    font-family: MicroSquareEx;
-    font-size: 0.8rem;
-  }
 }
 
 .contral_bar_canvas {
@@ -66,6 +38,10 @@ html, body {
     img {
       width: 2.25rem;
       filter: $filter_white;
+    }
+
+    img.selected {
+        filter: $filter_green;
     }
 
     span {

@@ -23,7 +23,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
     public progressUpdate(percent: number) {
         this.m_percentSVG.setAttribute("y",  Math.floor( ( 1 - percent) * 512).toString() );
 
-        let span_message = (percent < 0.95) ? "LOADING" + percent.toFixed(2) + "%" : "COMPLETE!";
+        let span_message = (percent < 0.95) ? "LOADING " + percent.toFixed(2) + "%" : "COMPLETE!";
 
         this.m_percentSpan.innerHTML = span_message;
         // this.m_percentBar.style.width = (percent*100) + "%";
