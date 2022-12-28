@@ -20,7 +20,7 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
             if (progressEvent.lengthComputable)
                 loaderViewCallback.progressUpdate(progressEvent.loaded / progressEvent.total );
             else {
-                let estimateMB = 20;
+                let estimateMB = 25;
                 loaderViewCallback.progressUpdate( Clamp(progressEvent.loaded / (estimateMB * 1000000), 0, 1) );
             }
         });
