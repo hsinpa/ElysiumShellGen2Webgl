@@ -14,10 +14,11 @@ export const MaterialParameters = Object.freeze({
 });
 
 export const TexturePath = Object.freeze({
-    BG_GDN: ".\\textures\\race_background\\BG_GDN-min.jpg",
-    BG_IVD: ".\\textures\\race_background\\BG_IVD-min.jpg",
-    BG_ORC: ".\\textures\\race_background\\BG_ORC-min.jpg",
-    BG_OLW: ".\\textures\\race_background\\BG_OLW-min.jpg",
+    GDN: ".\\textures\\race_background\\BG_GDN-min.jpg",
+    IVD: ".\\textures\\race_background\\BG_IVD-min.jpg",
+    ORC: ".\\textures\\race_background\\BG_ORC-min.jpg",
+    OTL: ".\\textures\\race_background\\BG_OTL-min.jpg",
+    ATC: ".\\textures\\race_background\\BG_ATC-min.jpg",
 
     NoiseTexture: ".\\textures\\displacement_noise.jpg",
 
@@ -43,3 +44,8 @@ export const EmojiTextureArray : string[] = [
 export const AnimationSet = Object.freeze({
     Idle : "idle.glb",
 });
+
+export interface OpenseaTraitType {
+    trait_type: string,
+    value: string,
+};

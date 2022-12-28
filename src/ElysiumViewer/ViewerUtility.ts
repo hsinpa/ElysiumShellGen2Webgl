@@ -9,6 +9,7 @@ import LoadingScreenView from "../DOM/LoadingScreenView";
 import { Clamp } from "../Utility/UtilityFunc";
 import AnimAssetManager from "./AnimAssetManager";
 import GLBCharacterMesh from './GLBCharacterMesh';
+import {OpenseaTraitType, TexturePath} from './GeneralStaticFlag';
 
 export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: LoadingScreenView) {
         //Load mesh
@@ -64,4 +65,32 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
     export const LoadEnvDDS = function(p_scene: Scene) {
         let hdrTexture = new HDRCubeTexture("./textures/adams_place_bridge_512_blur.hdr", p_scene,128, false, true, false, true);
         p_scene.environmentTexture = hdrTexture;
+    }
+
+    export const ParseBackgroundTexturePath = function(raw_json: any) {
+
+        try {
+            let attributes : OpenseaTraitType[] = raw_json["attributes"];
+            let attributes_len = attributes.length;
+            let last_trait = "";
+            
+            let code_trait = attributes.find(x=>x.trait_type == "code").value;
+
+            let code_table : any = {
+                GDN : TexturePath.GDN,
+                IVD : TexturePath.IVD,
+                ORC : TexturePath.ORC,
+                OTL : TexturePath.OTL,
+                ATC : TexturePath.ATC,
+            };
+    
+            if (code_trait in code_table) {
+                return code_table[code_trait];
+            }
+
+        } catch {
+            console.log("Background Texture Parse Error");
+        }
+
+        return TexturePath.GDN;
     }

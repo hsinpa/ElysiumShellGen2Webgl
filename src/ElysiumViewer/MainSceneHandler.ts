@@ -14,7 +14,7 @@ import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag, FrameDecorat
 import EventSystem from "../Utility/EventSystem";
 import AnimAssetManager from "./AnimAssetManager";
 import {EventTag, TexturePath, MaterialParameters, AnimationSet} from "./GeneralStaticFlag";
-import {LoadGLBFile, LoadEnvDDS, LoadAnimation} from './ViewerUtility';
+import {LoadGLBFile, LoadEnvDDS, LoadAnimation, ParseBackgroundTexturePath} from './ViewerUtility';
 import '@babylonjs/core/Rendering/depthRendererSceneComponent';
 import GLBCharacterMesh from './GLBCharacterMesh';
 let FrontPostStrength: number = 0;
@@ -126,7 +126,7 @@ export default class MainSceneHandler {
         this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, this.m_bgCam);
         
         this.m_backPostprocess.onApply = function (effect) {
-            let bgTexture = new Texture(TexturePath.BG_GDN, bg_scene, false, false);
+            let bgTexture = new Texture(ParseBackgroundTexturePath({}), bg_scene, true, true);
 
             effect.setFloat(MaterialParameters.AspectRatio, canvas_width  / canvas_height);
             effect.setTexture(MaterialParameters.MainTex, bgTexture);
