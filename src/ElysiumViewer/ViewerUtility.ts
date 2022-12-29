@@ -38,7 +38,7 @@ export const LoadGLBFile = async function(p_scene: Scene, loaderViewCallback: Lo
         //     this.m_currentAnimation =  this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
         // }
 
-        rootMesh.position =  new Vector3(0, -0.15, 0);
+       // rootMesh.position =  new Vector3(0, -0.15, 0);
         
         return glbCMesh;
     }
