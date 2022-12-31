@@ -41,6 +41,11 @@ export const EmojiTextureArray : string[] = [
     ".\\textures\\emoji\\ESNX dialog 10-min.png"
 ];
 
+export const API = Object.freeze({
+    metadata: "api.elysiumshell.xyz/esnxm/:id",
+    gateway: "https://elysiumshell.mypinata.cloud/ipfs/:id"
+});
+
 export const AnimationSet = Object.freeze({
     Idle : "idle.glb",
 });
@@ -49,3 +54,9 @@ export interface OpenseaTraitType {
     trait_type: string,
     value: string,
 };
+
+export interface OpenseaDataType {
+    code: string,
+    glb: string,
+    id: string
+}

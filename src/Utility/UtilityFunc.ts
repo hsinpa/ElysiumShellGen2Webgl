@@ -70,3 +70,15 @@ export function DownloadBase64File(rawdata :string) {
 
     downloadLink.remove();
 }
+
+export function GetRelativeURL(url : string) {
+    return (url.replace(/^(?:\/\/|[^/]+)*\//, ''));
+}
+
+export function BlobToBase64(blob: Blob) : Promise<any> {
+    return new Promise((resolve, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }

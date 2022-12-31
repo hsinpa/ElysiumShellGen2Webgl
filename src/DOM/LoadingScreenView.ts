@@ -25,12 +25,16 @@ export default class CustomLoadingScreen implements ILoadingScreen {
 
         let span_message = (percent < 0.95) ? "LOADING " + (percent * 100).toFixed(2) + "%" : "COMPLETE!";
 
-        this.m_percentSpan.innerHTML = span_message;
-        // this.m_percentBar.style.width = (percent*100) + "%";
+        // this.m_percentSpan.innerHTML = span_message;
+        this.ShowMessage(span_message);
     }
 
     public displayLoadingUI() {
-      this.progressUpdate(0);
+        this.ShowMessage("FETCHING DATA . . .");
+    }
+
+    public ShowMessage(message: string) {
+        this.m_percentSpan.innerHTML = message;
     }
   
     public hideLoadingUI() {

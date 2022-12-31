@@ -13,10 +13,12 @@ import LoadingScreenView from "../DOM/LoadingScreenView";
 import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag, FrameDecorationPostProcessingFrag} from "../Shader/GeneralShaderStatic";
 import EventSystem from "../Utility/EventSystem";
 import AnimAssetManager from "./AnimAssetManager";
-import {EventTag, TexturePath, MaterialParameters, AnimationSet} from "./GeneralStaticFlag";
-import {LoadGLBFile, LoadEnvDDS, LoadAnimation, ParseBackgroundTexturePath} from './ViewerUtility';
+import {EventTag, TexturePath, MaterialParameters, AnimationSet, API} from "./GeneralStaticFlag";
+import {LoadGLBFile, LoadEnvDDS, LoadAnimation, ParseBackgroundTexturePath, GetDomainID, FetchMetaData, ParseOpenseaMetaData} from './ViewerUtility';
 import '@babylonjs/core/Rendering/depthRendererSceneComponent';
 import GLBCharacterMesh from './GLBCharacterMesh';
+import {GDNMockSet} from './MockDataSet';
+
 let FrontPostStrength: number = 0;
 
 export default class MainSceneHandler {
@@ -69,8 +71,9 @@ export default class MainSceneHandler {
 
         this.m_animAssetManager = new AnimAssetManager(this.m_mainScene);
 
-        this.SetBackgroundScene(this.m_backgroundScene, canvasDOM.width, canvasDOM.height);
-        this.SetMainScene(this.m_engine, this.m_mainScene, this.m_canvasDOM);
+        this.PrepareScene();
+        // this.SetBackgroundScene(this.m_backgroundScene, canvasDOM.width, canvasDOM.height);
+        // this.SetMainScene(this.m_engine, this.m_mainScene, this.m_canvasDOM);
     }
 
     public async LoadAnimation(anime_id: string) {
@@ -119,14 +122,34 @@ export default class MainSceneHandler {
         };
     }
 
-    private async SetBackgroundScene(bg_scene: Scene, canvas_width: number, canvas_height: number) {
+    private async PrepareScene() {
+        this.m_engine.displayLoadingUI();
+
+        // try {
+            let id =  GetDomainID();
+            //let metadata = await FetchMetaData(id);
+            let metadata = GDNMockSet;
+            let opensea_data = ParseOpenseaMetaData(metadata);
+
+            console.log(opensea_data.glb);
+
+            this.SetBackgroundScene(this.m_backgroundScene, opensea_data.code, this.m_canvasDOM.width, this.m_canvasDOM.height);
+            await this.SetMainScene(this.m_engine, this.m_mainScene, opensea_data.glb, this.m_canvasDOM);
+
+            this.m_engine.hideLoadingUI();
+        // } catch {
+        //     console.error("Fetch data error");
+        // }
+    }
+
+    private async SetBackgroundScene(bg_scene: Scene, code: string, canvas_width: number, canvas_height: number) {
         this.m_bgCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, Vector3.Zero(), bg_scene);
         
         Effect.ShadersStore['BackgroundFragmentShader'] = BackgroundPostProcessingFrag;
         this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, this.m_bgCam);
         
         this.m_backPostprocess.onApply = function (effect) {
-            let bgTexture = new Texture(ParseBackgroundTexturePath({}), bg_scene, true, true);
+            let bgTexture = new Texture(ParseBackgroundTexturePath(code), bg_scene, true, true);
 
             effect.setFloat(MaterialParameters.AspectRatio, canvas_width  / canvas_height);
             effect.setTexture(MaterialParameters.MainTex, bgTexture);
@@ -137,10 +160,8 @@ export default class MainSceneHandler {
         };
     }
 
-    private async SetMainScene(engine: Engine, scene: Scene, canvasDOM: HTMLCanvasElement) {
-        engine.displayLoadingUI();
-
-        this.m_mainCharMesh = await LoadGLBFile(scene, this.m_loadScreenView);
+    private async SetMainScene(engine: Engine, scene: Scene, glb_url: string, canvasDOM: HTMLCanvasElement) {
+        this.m_mainCharMesh = await LoadGLBFile(scene, glb_url, this.m_loadScreenView);
 
         if (this.m_mainCharMesh == null) {
             console.error("Load GLB File fail");
@@ -160,8 +181,6 @@ export default class MainSceneHandler {
         this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-
-        engine.hideLoadingUI();
     }
 
     private SetFrontScene(glbMesh: GLBCharacterMesh, scene: Scene, canvasDOM: HTMLCanvasElement) {
