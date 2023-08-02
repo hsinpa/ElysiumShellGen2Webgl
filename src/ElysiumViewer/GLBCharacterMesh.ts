@@ -3,8 +3,10 @@ import { AbstractMesh } from "@babylonjs/core/Meshes";
 export default class GLBCharacterMesh {
     m_meshs: AbstractMesh[];
 
-    constructor(mesh: AbstractMesh[]) {
+    constructor(mesh: AbstractMesh[], render_group_id: number) {
         this.m_meshs = mesh;
+
+        mesh.forEach(x => x.renderingGroupId = render_group_id);
     }
 
     public get IsValid() {return this.m_meshs != null }

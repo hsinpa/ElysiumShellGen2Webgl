@@ -4,6 +4,7 @@ import {Quaternion, Vector3} from '@babylonjs/core/Maths';
 
 import { Clamp } from "../../Utility/UtilityFunc";
 import { IMode, ModeLerpHelper, ModeLerpStruct, ModeEnum } from "./IMode";
+import {WebsiteOption} from '../GeneralStaticFlag';
 
 export default class FreeStyleMode implements IMode {
     tag: ModeEnum;
@@ -35,7 +36,6 @@ export default class FreeStyleMode implements IMode {
         // this.m_targetMesh.rotate(new Vector3(0, 1, 0), Math.PI);
 
         this.m_lerp_helper.OnEnterState(this.m_camera);
-        console.log("OnEnterState");
     }
 
     OnUpdate() {

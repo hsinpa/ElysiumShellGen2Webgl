@@ -2,6 +2,7 @@ import {ArcRotateCamera} from '@babylonjs/core/Cameras';
 import {Vector3} from '@babylonjs/core/Maths';
 
 import { Lerp } from "../../Utility/UtilityFunc";
+import { WebsiteOption } from '../GeneralStaticFlag';
 
 export interface IMode {
     tag: ModeEnum,
@@ -27,15 +28,26 @@ export interface ModeLerpStruct {
     min_camera_radius: number
 }
 
-export let FreeStyleLerpStruct : ModeLerpStruct = {
-    lerp_target: new Vector3(0, 2.3
-        ,0),
-    lerp_alpha: Math.PI * 1.38,
-    lerp_beta: Math.PI * 0.48,
-    lerp_radius: 33,
+export let FreeStyleLerpStruct = function(option: WebsiteOption) : ModeLerpStruct {
 
-    max_camera_radius: 50,
-    min_camera_radius: 15,
+    let lerpStruct = {
+        lerp_target: new Vector3(0, 2.1
+            ,0),
+        lerp_alpha: Math.PI * 1.27,
+        lerp_beta: Math.PI * 0.48,
+        
+        lerp_radius: (option.is_mobile) ? 38 : 30,
+
+        max_camera_radius: 50,
+        min_camera_radius: 5,
+    };
+
+    if (option.background != null && option.is_website) {
+        lerpStruct.lerp_target = new Vector3(0, 2, 0);
+        lerpStruct.lerp_radius = 28.5;
+    }
+
+    return lerpStruct;
 }
 
 export let FaceCloseUpLerpStruct : ModeLerpStruct = {

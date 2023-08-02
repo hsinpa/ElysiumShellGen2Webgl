@@ -5,7 +5,7 @@
     right:0rem;
     background-color: black;
     display: none;
-    padding: 5.2rem 0rem;
+    padding: 4.9rem 0rem;
   
     h1 {
       color: $color_green;
@@ -29,6 +29,7 @@
     .container {
         display: flex;
         flex-direction: row;
+
         
         section {
             padding: 0rem 1rem;
@@ -36,11 +37,15 @@
 
         .camera_ctrl {
             .container_row {
-                margin: 0rem 0rem 2rem 0rem;            
+                margin: 0rem 0rem 1.5rem 0rem;            
             }
 
             img {
                 width: 5rem;
+            }
+
+            .container_row:nth-of-type(1) {
+                margin: 2rem 0rem 1.5rem 0rem;            
             }
         }
 

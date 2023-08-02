@@ -5,7 +5,7 @@ export const GDNMockSet = {
     name: '',
     description: '',
     image: '',
-    glb: 'ipfs://bafybeifgfdtkgbved373px7m73mdnz436gd6fximy5gjzum3egd23mcygm',
+    glbIpfsCid: 'ipfs://bafybeifgfdtkgbved373px7m73mdnz436gd6fximy5gjzum3egd23mcygm',
     vrm: '',
     animation_url: '',
     attributes: [{

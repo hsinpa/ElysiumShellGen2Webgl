@@ -2,22 +2,25 @@ import { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import { ArcRotateCamera } from "@babylonjs/core/Cameras";
 import { Engine } from "@babylonjs/core/Engines";
 import { GlowLayer } from "@babylonjs/core/Layers";
+import { AlphaState, Constants, DefaultRenderingPipeline, Plane, ShaderMaterial } from "@babylonjs/core";
 import { DirectionalLight, ShadowGenerator } from "@babylonjs/core/Lights";
-import { BackgroundMaterial, Effect, Texture } from "@babylonjs/core/Materials";
-import { Color4, Vector3 } from "@babylonjs/core/Maths";
+import { BackgroundMaterial, Effect, Texture, MirrorTexture, StandardMaterial, FresnelParameters } from "@babylonjs/core/Materials";
+import { Color3, Color4, Vector3, Vector4 } from "@babylonjs/core/Maths";
 import { AbstractMesh, MeshBuilder } from "@babylonjs/core/Meshes";
 import { PostProcess } from "@babylonjs/core/PostProcesses/postProcess";
 import { PassPostProcess } from "@babylonjs/core/PostProcesses/passPostProcess";
 import { Scene } from "@babylonjs/core/scene";
 import LoadingScreenView from "../DOM/LoadingScreenView";
-import {BackgroundPostProcessingFrag, ForegroundPostProcessingFrag, FrameDecorationPostProcessingFrag} from "../Shader/GeneralShaderStatic";
+import {BackgroundPostProcessingFrag, FrameDecorationPostProcessingFrag} from "../Shader/GeneralShaderStatic";
 import EventSystem from "../Utility/EventSystem";
 import AnimAssetManager from "./AnimAssetManager";
-import {EventTag, TexturePath, MaterialParameters, AnimationSet, API} from "./GeneralStaticFlag";
-import {LoadGLBFile, LoadEnvDDS, LoadAnimation, ParseBackgroundTexturePath, GetDomainID, FetchMetaData, ParseOpenseaMetaData} from './ViewerUtility';
+import {EventTag, TexturePath, MaterialParameters, AnimationSet, API, String, WebsiteOption} from "./GeneralStaticFlag";
+import {LoadGLBFile, LoadEnvDDS, LoadAnimation, ParseBackgroundTexturePath, GetWebOptions, FetchMetaData, ParseOpenseaMetaData} from './ViewerUtility';
 import '@babylonjs/core/Rendering/depthRendererSceneComponent';
 import GLBCharacterMesh from './GLBCharacterMesh';
 import {GDNMockSet} from './MockDataSet';
+import {HexToRgb, MobileCheck} from '../Utility/UtilityFunc';
+import {SetPhysicsGround} from "./FeatureDispatcher";
 
 let FrontPostStrength: number = 0;
 
@@ -40,8 +43,10 @@ export default class MainSceneHandler {
     private m_currentAnimation : AnimationGroup;
 
     private m_mainCharMesh: GLBCharacterMesh;
+    private m_options : WebsiteOption;
 
     private _animationSpeed: number = 1;
+    private _light: DirectionalLight;
 
     public get CharacterMesh() {
         return this.m_mainCharMesh;
@@ -59,11 +64,13 @@ export default class MainSceneHandler {
         return this.m_canvasDOM.width / this.m_canvasDOM.height;
     }
 
-    constructor(engine: Engine, canvasDOM: HTMLCanvasElement, loadScreenView: LoadingScreenView, eventSystem: EventSystem) {
+    public get Light() { return this._light; }
+    
+    constructor(engine: Engine, canvasDOM: HTMLCanvasElement, options: WebsiteOption, loadScreenView: LoadingScreenView, eventSystem: EventSystem) {
         this.m_engine = engine;
         this.m_canvasDOM = canvasDOM;
+        this.m_options = options;
         
-
         this.m_mainScene = new Scene(engine);
         this.m_backgroundScene = new Scene(engine);
         this.m_loadScreenView = loadScreenView;
@@ -72,8 +79,6 @@ export default class MainSceneHandler {
         this.m_animAssetManager = new AnimAssetManager(this.m_mainScene);
 
         this.PrepareScene();
-        // this.SetBackgroundScene(this.m_backgroundScene, canvasDOM.width, canvasDOM.height);
-        // this.SetMainScene(this.m_engine, this.m_mainScene, this.m_canvasDOM);
     }
 
     public async LoadAnimation(anime_id: string) {
@@ -110,53 +115,83 @@ export default class MainSceneHandler {
         var postProcess0 = new PassPostProcess("Scene copy", 1.0, this.m_bgCam);
 
         Effect.ShadersStore['FrameFragmentShader'] = FrameDecorationPostProcessingFrag;
-        this.m_framePostprocess = new PostProcess('', 'Frame', [MaterialParameters.AspectRatio, MaterialParameters.AspectRatioRevert], 
+        this.m_framePostprocess = new PostProcess('', 'Frame', [MaterialParameters.AspectRatio, MaterialParameters.AspectRatioRevert, MaterialParameters.AlignHeightFlag], 
                                                                     [MaterialParameters.FrameTex, MaterialParameters.BackgroundTex], 1, this.m_mainCam);
-
+        let option = this.m_options;
         let frameTexture = new Texture(frame_tex_path, this.m_mainScene, false, true);
         this.m_framePostprocess.onApply = function (effect) {
             effect.setTextureFromPostProcess(MaterialParameters.BackgroundTex, postProcess0);
             effect.setFloat(MaterialParameters.AspectRatioRevert, self.m_canvasDOM.clientHeight  / self.m_canvasDOM.clientWidth);
             effect.setTexture(MaterialParameters.FrameTex, frameTexture);
             effect.setFloat(MaterialParameters.AspectRatio, self.AspectRatio);
+            effect.setInt(MaterialParameters.AlignHeightFlag, option.is_mobile ? 1 : 0);
         };
     }
 
-    private async PrepareScene() {
+    private async PrepareScene(try_count = 0) {
+        let max_try_count = 5;
         this.m_engine.displayLoadingUI();
 
-        // try {
-            let id =  GetDomainID();
-            //let metadata = await FetchMetaData(id);
-            let metadata = GDNMockSet;
+        try {
+            let metadata = await FetchMetaData(this.m_options.id);
+            console.log(metadata);
+            //let metadata = GDNMockSet;
             let opensea_data = ParseOpenseaMetaData(metadata);
 
-            console.log(opensea_data.glb);
+            if (opensea_data.glb == "" || opensea_data.glb == null) {
+                throw new Error(String.IPFS_GLB_NOT_EXIST);
+            }
 
-            this.SetBackgroundScene(this.m_backgroundScene, opensea_data.code, this.m_canvasDOM.width, this.m_canvasDOM.height);
+            this.SetBackgroundScene(this.m_backgroundScene, opensea_data.code);
             await this.SetMainScene(this.m_engine, this.m_mainScene, opensea_data.glb, this.m_canvasDOM);
 
             this.m_engine.hideLoadingUI();
-        // } catch {
-        //     console.error("Fetch data error");
-        // }
+
+            this.m_eventSystem.Notify(EventTag.BabylonAppDisplay);
+        } 
+        catch(e) {
+            console.error("Fetch data error " + e);
+
+            if (try_count >= max_try_count)
+                this.m_loadScreenView.ShowMessage( String.IPFS_GLB_NOT_EXIST );
+            else {
+                try_count++;
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                this.PrepareScene(try_count);
+            }
+        }
     }
 
-    private async SetBackgroundScene(bg_scene: Scene, code: string, canvas_width: number, canvas_height: number) {
+    private async SetBackgroundScene(bg_scene: Scene, code: string) {
         this.m_bgCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 8, Vector3.Zero(), bg_scene);
         
         Effect.ShadersStore['BackgroundFragmentShader'] = BackgroundPostProcessingFrag;
-        this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio], [MaterialParameters.MainTex], 1, this.m_bgCam);
+        this.m_backPostprocess = new PostProcess('', 'Background', [MaterialParameters.AspectRatio, MaterialParameters.BackgroundColor, MaterialParameters.EnablePureBGColor],
+                                                 [MaterialParameters.MainTex, MaterialParameters.MainBackground], 1, this.m_bgCam);
         
+        let mainTexture = new Texture(ParseBackgroundTexturePath(code, this.m_options), bg_scene, true, true);
+        let bgTexture = new Texture(TexturePath.Website_BG, bg_scene, true, true);
+
+        let bgColor = HexToRgb(this.m_options.background);
+        let option = this.m_options;
+        let self = this;
+        let fix_website_text_aspectRatio = ( 675 / 1200);
+
         this.m_backPostprocess.onApply = function (effect) {
-            let bgTexture = new Texture(ParseBackgroundTexturePath(code), bg_scene, true, true);
 
-            effect.setFloat(MaterialParameters.AspectRatio, canvas_width  / canvas_height);
-            effect.setTexture(MaterialParameters.MainTex, bgTexture);
-        };
+            let aspect_ratio = (option.is_website) ? (fix_website_text_aspectRatio * self.AspectRatio): self.AspectRatio;
 
-        this.m_backPostprocess.onSizeChanged =  function (postprocess) {
-            postprocess.apply();
+            if (option.is_website && option.is_mobile) aspect_ratio = self.AspectRatio;
+
+            effect.setFloat(MaterialParameters.AspectRatio, aspect_ratio);
+            effect.setTexture(MaterialParameters.MainTex, mainTexture);
+            effect.setTexture(MaterialParameters.MainBackground, bgTexture);
+
+            effect.setFloat(MaterialParameters.EnablePureBGColor, (bgColor != null) ? 1 : 0);
+
+            if (bgColor != null)
+                effect.setFloat3(MaterialParameters.BackgroundColor, bgColor.r, bgColor.g, bgColor.b);
         };
     }
 
@@ -168,15 +203,15 @@ export default class MainSceneHandler {
             return;
         }
 
-        this.m_mainCharMesh.IteratorOps((x) => x.visibility = 0 );
+        //this.m_mainCharMesh.IteratorOps((x) => x.visibility = 0 );
 
         await this.LoadAnimation( AnimationSet.Idle);
-
         this.SetFrontScene(this.m_mainCharMesh, scene, canvasDOM);
 
         LoadEnvDDS(scene);
 
-        this.m_mainCharMesh.IteratorOps((x) => x.visibility = 1 );
+        //this.m_mainCharMesh.IteratorOps((x) => x.visibility = 1 );
+        this.OnFrontPostProcessComplete(this.m_mainScene);
 
         this.m_eventSystem.Notify(EventTag.BabylonAppReady, 1);
 
@@ -186,93 +221,75 @@ export default class MainSceneHandler {
     private SetFrontScene(glbMesh: GLBCharacterMesh, scene: Scene, canvasDOM: HTMLCanvasElement) {
         scene.autoClear = false;
         scene.clearColor = new Color4(0.0, 0.0, 0.0,  0.0);
-        
-        const cam_position = new Vector3(0, 1.8, 0);
-        this.m_mainCam = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 30, cam_position, scene);
+        let option = this.m_options;
+        const cam_position = new Vector3(0, 5.7, 0);
+        this.m_mainCam = new ArcRotateCamera("Camera", Math.PI *1.5, Math.PI / 2, 30, cam_position, scene);
 
-        this.m_mainCam.attachControl(canvasDOM, true);
+        this.m_mainCam.attachControl(canvasDOM, false);
         this.m_mainCam.wheelPrecision = 30;
         this.m_mainCam.wheelDeltaPercentage = 0.01;
         this.m_mainCam.maxZ = 60;
-        this.m_mainCam.minZ = 5;
+        this.m_mainCam.minZ = 0.3;
         this.m_mainCam.fov = 0.166;
 
-        // let depthTex = scene.enableDepthRenderer(this.m_mainCam);
-        let noiseTexture = new Texture(TexturePath.NoiseTexture, scene, false, false);
+        if (option.background != null && option.is_website) {
+            this.m_mainCam.position = cam_position;
+        }
 
-        Effect.ShadersStore['ForegroundFragmentShader'] = ForegroundPostProcessingFrag;
-        this.m_frontPostprocess = new PostProcess('', 'Foreground', [MaterialParameters.Strength, MaterialParameters.AspectRatio], 
-                                                                    [MaterialParameters.NoiseTex], 1, this.m_mainCam);
+        if (this.m_options.is_website)
+            this.m_mainCam.panningSensibility = 0;
 
-        this.m_frontPostprocess.onApply = function (effect) {
-            effect.setTexture(MaterialParameters.NoiseTex, noiseTexture);
-            effect.setFloat(MaterialParameters.AspectRatio, canvasDOM.clientWidth  / canvasDOM.clientHeight);
-            effect.setFloat(MaterialParameters.Strength, FrontPostStrength);
-        };
+        let engine = this.m_engine;
+        let render_pipeline = new DefaultRenderingPipeline("main_renderpipeline", true, this.m_mainScene, this.m_mainScene.cameras);
+        //render_pipeline.fxaaEnabled = true;
+        render_pipeline.samples = MobileCheck() ? 2 : 4;
 
-        const light = new DirectionalLight("light", new Vector3(0.3, -1, 0.55), scene);
-        light.position = new Vector3(0, 11, 0);
-        light.intensity = 2;
+        let last_postProcess = this.m_mainCam._postProcesses[this.m_mainCam._postProcesses.length - 1];        
+        this.m_backPostprocess.clearColor = new Color4(0, 0, 0, 0);
+        last_postProcess.alphaMode = Constants.ALPHA_COMBINE;
 
-        //Shadow 
-        var shadowMapper = new ShadowGenerator(1024, light);
-        //shadowMapper.useBlurCloseExponentialShadowMap = true;
-        shadowMapper.usePoissonSampling = true;
-
-        glbMesh.IteratorOps(x=> {
-            shadowMapper.getShadowMap().renderList.push(x);
-            x.isPickable = true;
-            x.receiveShadows = true;
-            shadowMapper.addShadowCaster(x);
+        last_postProcess.onActivateObservable.add(() => {
+            engine.clear(this.m_backPostprocess.clearColor, true, true);
         });
 
+        const light = new DirectionalLight("light", new Vector3(-0.5, -1, 0.8), scene);
+        light.position = new Vector3(0, 11, 0);
+        light.intensity = 1.0;
+
+        this._light = light;
+
+        //Shadow 
+        // var shadowMapper = new ShadowGenerator(1024, light);
+        // shadowMapper.usePoissonSampling = true;
+
+        glbMesh.IteratorOps(x=> {
+            // shadowMapper.getShadowMap().renderList.push(x);
+            x.isPickable = true;
+            x.receiveShadows = true;
+
+            // shadowMapper.addShadowCaster(x);
+        });
 
         var gl = new GlowLayer("glow", scene);
-        gl.intensity = 1;
+        gl.intensity = 0.1;        
     }
 
     private OnFrontPostProcessComplete(main_scene: Scene) {
-        this.m_frontPostprocess.dispose();
-        this.m_frontPostprocess = null;
         //Ground
-        let ground_scale = 1.0;
-        var ground = MeshBuilder.CreateGround("ground1", {width: ground_scale, height: ground_scale}, main_scene);
-        ground.receiveShadows = true;
-        ground.isPickable = false;
-        var backgroundMaterial = new BackgroundMaterial("backgroundMaterial", main_scene);
-        backgroundMaterial.diffuseTexture = new Texture(TexturePath.TransparentGround, main_scene);
-        backgroundMaterial.shadowLevel = 0.1;
-
-        if (backgroundMaterial.diffuseTexture != null) {
-            backgroundMaterial.diffuseTexture.hasAlpha = true;
-        }
-        
         main_scene.disableDepthRenderer(this.m_mainCam);
 
-        ground.material = backgroundMaterial;
-        //Show shadow gradually
-        let timer = setInterval(function() {
-            ground_scale += 0.2;
-            ground.scaling.set(ground_scale, ground_scale, ground_scale);
-
-            if (ground_scale >= 5)
-                clearInterval(timer);
-          }, 50); 
+        let spawnGroundMesh = SetPhysicsGround(this.m_options, main_scene, this.CharacterMesh);
     }
 
     public ProcessRender() {
+        if ( this.m_loadScreenView.visible) return;
+
         if (this.m_backgroundScene == undefined || this.m_engine == undefined) return;
             this.m_backgroundScene.render();
 
         if (this.m_mainScene == undefined || this.m_mainCam == null || this.m_engine == undefined) return;
             this.m_mainScene.render();
-
-        if (this.m_frontPostprocess != null) {
-            FrontPostStrength += 0.008; 
-        
-            if (FrontPostStrength > 1.0) {
-                this.OnFrontPostProcessComplete(this.m_mainScene);
-            }
-        }
     }
+
+
 }

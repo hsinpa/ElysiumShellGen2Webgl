@@ -16,7 +16,7 @@ class EventSystem {
         this._events[event_id] = [callback];
     }
 
-    Notify(event_id : string, parameters : any) {
+    Notify(event_id : string, parameters? : any) {
         if (this._events.hasOwnProperty(event_id)) {
 
             let eventLength = this._events[event_id].length;

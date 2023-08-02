@@ -20,7 +20,6 @@ export default class AnimAssetManager {
 
         });
 
-        console.log(loadContainer.animationGroups);
         if (loadContainer.animationGroups.length > 0) {
             loadContainer.animationGroups[0].name = asset_id;        
             this._containerTable.setValue(asset_id, loadContainer);    
@@ -53,6 +52,7 @@ export default class AnimAssetManager {
 
         if (mesh.skeleton != null) {
             dictTable.setValue("Armature", mesh.skeleton);
+            mesh.skeleton?.returnToRest();
 
             mesh.skeleton?.bones.forEach(x=> {
                 let tn = x.getTransformNode();
@@ -71,8 +71,10 @@ export default class AnimAssetManager {
                 console.log("Lost part " + import_anim.target.name);
             }
         }
+        
         newAnimGroup.loopAnimation = true;
         newAnimGroup.start(true, 1);
+        
 
         return newAnimGroup;
     }

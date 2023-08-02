@@ -1,11 +1,29 @@
-import './stylesheet/style.scss'
 import BabylonApp from './ElysiumViewer/BabylonApp';
 import {AnimationSet, EventTag} from './ElysiumViewer/GeneralStaticFlag';
+import anime from 'animejs';
 
 import EventSystem from './Utility/EventSystem';
 import { ModeEnum } from './ElysiumViewer/Mode/IMode';
 import ControlBarView from './DOM/ControlbarView';
 import {DownloadBase64File} from "./Utility/UtilityFunc";
+import {GetWebOptions} from "./ElysiumViewer/ViewerUtility";
+
+let webOptions = GetWebOptions();
+let htmlContainer = window.document.getElementById("loading_ui");
+let ctrl_bar_dom : HTMLBaseElement= document.querySelector(".contral_bar_canvas");
+
+if (webOptions.is_website) {
+  ctrl_bar_dom.style.display = "none";
+
+  if (webOptions.background != null) {
+    htmlContainer.style.backgroundColor = "#" + webOptions.background;
+  } else
+    htmlContainer.style.backgroundColor = "#AEAEAE";
+} else {
+  htmlContainer.style.backgroundColor = "black";
+}
+
+import './stylesheet/style.scss';
 
 window.addEventListener("load", function(event) {
   let event_system = new EventSystem();
@@ -16,17 +34,28 @@ window.addEventListener("load", function(event) {
 let CreateBabylonApp = function(p_eventSystem: EventSystem) {
   let main_canvas = document.querySelector("#main_app");
 
-  if (main_canvas != null) {
-    let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement, p_eventSystem);
+  main_canvas.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation() });
 
-    console.log( "Aspect Ratio " + main_canvas.clientWidth  / main_canvas.clientHeight);
-    console.log( "Aspect Ratio Revert" + main_canvas.clientHeight  / main_canvas.clientWidth);
+  if (main_canvas != null) {
+
+    let babylonApp = new BabylonApp(main_canvas as HTMLCanvasElement, p_eventSystem);
+    let controlbar_view : ControlBarView  = null;
 
     p_eventSystem.ListenToEvent(EventTag.BabylonAppReady, () => {
-      SetControlBar(babylonApp);
+      controlbar_view = SetControlBar(babylonApp);
       babylonApp.SetMode(ModeEnum.FreeStyle);
       babylonApp.Mode.Animate(false);
       // babylonApp.PausePlayAnimation(true);  
+    });
+
+    p_eventSystem.ListenToEvent(EventTag.BabylonAppDisplay, () => {
+        //Show menu icon
+        if (!webOptions.is_website) {
+          let menu_icon = document.querySelector<HTMLImageElement>("#ctrl_mode_change");
+          menu_icon.style.display = "block";    
+          
+          controlbar_view.OnMenuBtnClick();
+      }
     });
 
     return babylonApp;
@@ -35,15 +64,19 @@ let CreateBabylonApp = function(p_eventSystem: EventSystem) {
 }
 
 let SetControlBar = function(app: BabylonApp) {
-  let control_bar = new ControlBarView();
+  let control_bar = new ControlBarView(webOptions);
   control_bar.SetCallback(
   //Skeleton Animation
   async (animation) =>  {
     await app.MainScene.LoadAnimation(animation);
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    // console.log(app.IsAnimate);
-    if (!app.IsAnimateMode) app.SetAnimationMode(false);
+    
+    if (!app.IsAnimateMode) {
+      let playpause_btn_dom = document.querySelector<HTMLImageElement>("#ctrl_play_change");
+      playpause_btn_dom.click();
+    }
+    
+    //await new Promise(resolve => setTimeout(resolve, 200));
+    // if (!app.IsAnimateMode) app.SetAnimationMode(false);
   }, 
 
   //Pause Play Btn
@@ -67,8 +100,9 @@ let SetControlBar = function(app: BabylonApp) {
 
   //Screenshot
   async () => {
-    let data = await app.TakeScreenshot();    
-    DownloadBase64File(data);
+    let screen_img_dom : HTMLImageElement = document.querySelector('#screen_shot_container img');
+
+    let data = await app.TakeScreenshot(screen_img_dom);   
   },
 
   //Animation speed
@@ -83,4 +117,6 @@ let SetControlBar = function(app: BabylonApp) {
 
   },
   );
+
+  return control_bar;
 }

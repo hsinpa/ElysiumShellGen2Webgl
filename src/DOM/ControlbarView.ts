@@ -2,6 +2,7 @@ import { ExtrasAsMetadata } from '@babylonjs/loaders/glTF/2.0';
 import anime from 'animejs';
 import 'simplebar';
 import 'simplebar/dist/simplebar.css';
+import { WebsiteOption } from '../ElysiumViewer/GeneralStaticFlag';
 
 type SKAnimationType = {
     (s: string): void;
@@ -39,9 +40,12 @@ export default class ControlBarView {
     private _animationSpeedSet = [1, 2, 0.5];
     private _animationSpeedIndex = 0;
 
-    private _leftCtrlBarExpandSize = 7.25;
+    private _leftCtrlBarExpandSize = 7.25;//7.25;
+    private m_option: WebsiteOption;
+    private m_screenshot_count: number = 0;
 
-    constructor( ) {
+    constructor(option: WebsiteOption ) {
+        this.m_option = option;
         this._menu_flag = false;
         this._animation_container_flag = false;
 
@@ -112,8 +116,15 @@ export default class ControlBarView {
         this._backBtnDom = document.querySelector("#ctrl_back_container");
         this._infoDom = document.querySelector("#ctrl_info");
         this._frameBtnDom = document.querySelector("#ctrl_frame");
+        
+        //Hide Info button on mobile phone
+        if (this.m_option.is_mobile) {
+            let info_hr_line : HTMLBodyElement = document.querySelector("#ctrl_info_line");
+            this._infoDom.style.visibility = "hidden"; 
+            info_hr_line.style.visibility = "hidden";
+        }
 
-        this.SetClickButtonEvent("#ctrl_screenshot", () => this._screenshotBtnCallback() );
+        this.SetClickButtonEvent("#ctrl_screenshot", this.OnScreenshotClick.bind(this)  );
         this.SetClickButtonEvent("#ctrl_back", () => {
             this.ResetUI();
         } );
@@ -127,12 +138,12 @@ export default class ControlBarView {
         //this.SetClickButtonEvent("#ctrl_animation_speed", this.OnAnimationSpeedChange.bind(this));
     }
 
-    private OnMenuBtnClick() {
+    public OnMenuBtnClick() {
         let menu_icon : HTMLImageElement = document.querySelector("#ctrl_mode_change");
 
         let closeStyle = {
             width:  this._leftCtrlBarExpandSize + 'rem',
-            backgroundColor: "#000000", 
+            // backgroundColor: "#000000", 
         };
 
         let openStyle = {
@@ -160,7 +171,6 @@ export default class ControlBarView {
     }
 
     private OnPlayPauseClick(dom: HTMLImageElement) {
-        console.log(this);
         let currentSrc = dom.getAttribute("src");
         let playSrc = dom.getAttribute("pause_src");
         let pauseSrc = dom.getAttribute("play_src");
@@ -178,7 +188,7 @@ export default class ControlBarView {
 
         this.SetIconSelectStyle(this._animationBtnDom, this._animation_container_flag);
 
-        this.PreExpandBtnAction(this._animation_container_flag, [this._animationBtnDom]);
+        this.PreExpandBtnAction(this._animation_container_flag, false, [this._animationBtnDom]);
     }
 
     private OnSkeletonAnimationSpanClick(selfElement: HTMLSpanElement) {
@@ -196,7 +206,7 @@ export default class ControlBarView {
 
         this.SetIconSelectStyle(this._frameBtnDom, this._frame_container_flag);
 
-        this.PreExpandBtnAction(this._frame_container_flag, [this._frameBtnDom]);
+        this.PreExpandBtnAction(this._frame_container_flag, false, [this._frameBtnDom]);
     }
 
     private async OnSingleFrameButtonClick(selfElement: HTMLImageElement) {
@@ -214,6 +224,32 @@ export default class ControlBarView {
 
             this._frameBtnCallback(dataValue, !is_selected);
         }
+    }
+
+    private async OnScreenshotClick() {
+        this._screenshotBtnCallback();
+        this.m_screenshot_count++;
+
+        let cache_screenshot_count = this.m_screenshot_count;
+
+        await new Promise(resolve => setTimeout(resolve, 200));
+        let query = "#screen_shot_container";
+
+        anime({
+            targets: query,
+            translateX: -210,
+            easing: 'easeInOutExpo'
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        if (cache_screenshot_count < this.m_screenshot_count) return;
+
+        anime({
+            targets: query,
+            translateX: 210,
+            easing: 'easeInOutExpo'
+        });
     }
 
     private OnAnimationSpeedChange(dom: HTMLSpanElement) {
@@ -246,12 +282,22 @@ export default class ControlBarView {
     private OnInfoBtnClick() {
         this.SetInfoPanelVisibility(!this._info_panel_flag);
 
-        this.PreExpandBtnAction(this._info_panel_flag, [this._infoDom]);
+        this.PreExpandBtnAction(this._info_panel_flag, this._info_panel_flag, [this._infoDom]);
     }
 
     private SetInfoPanelVisibility(is_show: boolean) {
 
+        let ctrl_bar_canvas : HTMLBaseElement = document.querySelector(".contral_bar_canvas");
         this._infoDomContainer.style.display = is_show ? "block" : "none";
+
+        if (is_show) {
+            ctrl_bar_canvas.style.backgroundColor =  "#000000";
+            ctrl_bar_canvas.style.width =  this._leftCtrlBarExpandSize + 'rem';
+        } else {
+            //ctrl_bar_canvas.style.width = '0rem';
+            ctrl_bar_canvas.style.backgroundColor =  "inherit";
+        } 
+        
         this.UpdateInfoPanelWidthRatio();
 
         this.SetIconSelectStyle(this._infoDom, is_show);
@@ -260,19 +306,17 @@ export default class ControlBarView {
     }
 
     private UpdateInfoPanelWidthRatio() {
-        let displacement = 0;
+        let displacement = -0.2;
         let infobar_width = (window.innerWidth * 0.0625) - (this._leftCtrlBarExpandSize + displacement);
         this._infoDomContainer.style.width = infobar_width +"rem";
-
-        console.log("UpdateInfoPanelWidthRatio");
     }
 
     //#region  UI Expand Ctrl
 
     //Hide all btn first
-    private PreExpandBtnAction(is_hide: boolean, exceptions? : any[] ) {
+    private PreExpandBtnAction(is_hide: boolean, show_back_btn: boolean, exceptions? : any[] ) {
         let stylesheet = is_hide ? "none" : "block";
-        let revert_stylesheet = is_hide ? "block" : "none";
+        let revert_stylesheet = show_back_btn ? "block" : "none";
 
         this._animationBtnDom.style.display = stylesheet;
         this._pausePlayBtnDom.style.display = stylesheet;
@@ -308,7 +352,7 @@ export default class ControlBarView {
 
         this.SetInfoPanelVisibility(false);
 
-        this.PreExpandBtnAction(false);
+        this.PreExpandBtnAction(false , false);
     }
     //#endregion
 }

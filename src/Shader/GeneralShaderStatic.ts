@@ -1,15 +1,24 @@
 export const BackgroundPostProcessingFrag : string = `
     in vec2 vUV;
-    
+
+    uniform vec3 u_background_color;
+    uniform float u_enable_background_color;
     uniform float u_aspect_ratio;
     uniform sampler2D u_mainTex;
+    uniform sampler2D u_mainBG;
 
     void main() {
         float uv_x = clamp(((vUV.x - 0.5)* u_aspect_ratio) + 0.5, 0.01, 0.99);
         vec2 resize_uv = vec2(uv_x, vUV.y ); 
 
-        vec4 bg_texture = texture2D(u_mainTex, resize_uv);
-        gl_FragColor = bg_texture; 
+        vec4 main_texture = texture2D(u_mainTex, resize_uv);
+        vec4 background_c = texture2D(u_mainBG, vUV);
+
+        main_texture = vec4(mix(background_c.rgb, main_texture.rgb, main_texture.a), 1.0);
+
+        main_texture = mix(main_texture, vec4(u_background_color, 1.0), u_enable_background_color);
+
+        gl_FragColor = main_texture; 
     }
 `;
 
@@ -33,7 +42,7 @@ export const ForegroundPostProcessingFrag : string = `
 
         float diff = abs(clamp_strength - noise_texture.r);
 
-        if ((front_texture.r > 0.0001 || front_texture.g > 0.0001 || front_texture.b > 0.0001) && front_texture.w > 0.001) {
+        if ( front_texture.w > 0.01) {
 
             if (noise_texture.g < clamp_strength) {
                 if (diff < 0.05) {
@@ -60,39 +69,64 @@ export const FrameDecorationPostProcessingFrag : string = `
 
     uniform float u_aspect_ratio;
     uniform float u_aspect_ratio_revert;
+    uniform int u_align_height;
     
+    vec4 get_align_width_color(vec2 vUV) {
+        float frame_uv_x = (vUV.x * u_aspect_ratio);
+        float frame_uv_remaining =  (u_aspect_ratio - 1.0) * 0.5;
+
+        frame_uv_x = frame_uv_x - frame_uv_remaining;
+        return texture2D(u_frameTex, vec2(frame_uv_x, vUV.y));  
+    }
+
+    vec4 get_align_height_color(vec2 vUV) {
+        float frame_uv_y = (vUV.y * u_aspect_ratio_revert);
+        float frame_uv_remaining =  (u_aspect_ratio_revert - 1.0) * 0.5;
+
+        frame_uv_y = frame_uv_y - frame_uv_remaining;
+        return texture2D(u_frameTex, vec2(vUV.x, frame_uv_y));
+    }
+
     void main() {
         vec4 front_texture = texture2D(textureSampler, vUV);
         vec4 background_texture = texture2D(u_backgroundTex, vUV);
 
-        float frame_uv_x = (vUV.x * u_aspect_ratio);
-        float frame_uv_remaining =  (u_aspect_ratio - 1.0) * 0.5;
-        float frame_uv_hide =  ( 1.0 - u_aspect_ratio_revert) * 0.5 ;
+        float frame_uv_width_hide =  ( 1.0 - u_aspect_ratio_revert) * 0.5;
+        float frame_uv_height_hide =  ( 1.0 - u_aspect_ratio) * 0.5;
 
-        frame_uv_x = frame_uv_x - frame_uv_remaining;
-        vec4 frame_texture = texture2D(u_frameTex, vec2(frame_uv_x, vUV.y));
-        vec4 frame_corner_col = texture2D(u_frameTex, vec2(0.1, 0.1));
+        vec4 frame_texture = vec4(0,0,0,0);
+        if (u_align_height == 1) {
+            frame_texture = get_align_height_color(vUV);
+        } else {
+            frame_texture = get_align_width_color(vUV);
+        }
+
+        float side_uv = vUV.x;
+        float uv_hide = frame_uv_width_hide;
+        if (u_align_height == 1)  {
+            side_uv = vUV.y;
+            uv_hide = frame_uv_height_hide;
+        }
+        
         vec4 black_col = vec4(0.0, 0.0, 0.0, 1.0);
 
-        if (vUV.x < frame_uv_hide || vUV.x > 1.0 - frame_uv_hide) {
+        if (side_uv < uv_hide || side_uv > 1.0 - uv_hide) {
             gl_FragColor = black_col;
 
             return;
         }
 
-        if (frame_texture.a > 0.5) {
+        if (frame_texture.a > 0.6) {
             gl_FragColor = frame_texture;
 
             return;
         }
 
-        vec4 final_output = mix(background_texture, front_texture, front_texture.w);
+        vec4 final_output = vec4( mix(background_texture.rgb, front_texture.rgb, front_texture.a), 1.0);
 
         gl_FragColor = final_output;
     }
 `;
-
-
 
 export const UniversalVert : string = `
     precision mediump float;

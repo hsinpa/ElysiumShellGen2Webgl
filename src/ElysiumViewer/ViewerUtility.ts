@@ -6,14 +6,16 @@ import { HDRCubeTexture } from "@babylonjs/core/Materials";
 import { AbstractMesh } from "@babylonjs/core/Meshes";
 import { Scene } from "@babylonjs/core/scene";
 import LoadingScreenView from "../DOM/LoadingScreenView";
-import { Clamp, GetRelativeURL, BlobToBase64 } from "../Utility/UtilityFunc";
+import { Clamp, GetRelativeURL, BlobToBase64, MobileCheck } from "../Utility/UtilityFunc";
 import AnimAssetManager from "./AnimAssetManager";
 import GLBCharacterMesh from './GLBCharacterMesh';
-import {OpenseaTraitType, TexturePath, API, OpenseaDataType} from './GeneralStaticFlag';
+import {OpenseaTraitType, TexturePath, API, OpenseaDataType, WebsiteOption, String} from './GeneralStaticFlag';
 
 export const LoadGLBFile = async function(p_scene: Scene, path: string, loaderViewCallback: LoadingScreenView) {
         //Load mesh
-        let glbPath = "./assets/test_robots/bafybeifgfdtkgbved373px7m73mdnz436gd6fximy5gjzum3egd23mcygm.glb";
+        let glbPath = "./assets/test_robots/H2208IVDn-B0205IVDn-A0408IVDn-L1005IVDs-EQP06n-x2048.glb";
+
+        console.log("LoadGLBFile \n" + path);
 
         let glbMesh = await SceneLoader.ImportMeshAsync("", path, undefined, p_scene, function (progressEvent) { 
             progressEvent.lengthComputable
@@ -32,14 +34,12 @@ export const LoadGLBFile = async function(p_scene: Scene, path: string, loaderVi
         p_scene.animationPropertiesOverride.blendingSpeed = 0.1;
         p_scene.animationPropertiesOverride.loopMode = 1;
 
-        let glbCMesh = new GLBCharacterMesh(glbMesh.meshes);
+        let glbCMesh = new GLBCharacterMesh(glbMesh.meshes, 1);
 
         let rootMesh = glbMesh.meshes.find(x=> x.name == "__root__");
         // if (glbCharMesh != null && targetAnimGroup != null) {
         //     this.m_currentAnimation =  this.m_animAssetManager.AnimeGroupTransfer(glbCharMesh, targetAnimGroup, "lanternAnimGroup");
         // }
-
-       // rootMesh.position =  new Vector3(0, -0.15, 0);
         
         return glbCMesh;
     }
@@ -50,7 +50,6 @@ export const LoadGLBFile = async function(p_scene: Scene, path: string, loaderVi
 
         let animPath = "./assets/anime/"+anime_id;
 
-        console.log(animPath);
         await animAssetManager.LoadAnimation(anime_id, animPath);
 
         let target_anime_group = animAssetManager.GetAnimationAsset(anime_id);
@@ -65,20 +64,32 @@ export const LoadGLBFile = async function(p_scene: Scene, path: string, loaderVi
 
     export const LoadEnvDDS = function(p_scene: Scene) {
         let hdrTexture = new HDRCubeTexture("./textures/adams_place_bridge_512_blur.hdr", p_scene,128, false, true, false, true);
+        hdrTexture.rotationY = Math.PI * 0.5;
         p_scene.environmentTexture = hdrTexture;
+        p_scene.environmentIntensity = 2.0;
     }
 
-    export const ParseBackgroundTexturePath = function(code: string) {
+    export const ParseBackgroundTexturePath = function(code: string, option : WebsiteOption) {
         try {
             let code_table : any = {
-                GDN : TexturePath.GDN,
-                IVD : TexturePath.IVD,
-                ORC : TexturePath.ORC,
-                OTL : TexturePath.OTL,
-                ATC : TexturePath.ATC,
+                GDN : (option.is_website) ? TexturePath.Website_GDN : TexturePath.GDN,
+                IVD : (option.is_website) ? TexturePath.Website_IVD :TexturePath.IVD,
+                ORC : (option.is_website) ? TexturePath.Website_ORC :TexturePath.ORC,
+                OTL : (option.is_website) ? TexturePath.Website_OTL :TexturePath.OTL,
+                ARC : (option.is_website) ? TexturePath.Website_ARC : TexturePath.ARC,
+                TTN : (option.is_website) ? TexturePath.Website_GDN : TexturePath.TTN,
             };
+
+            if (option.is_website && option.is_mobile) {
+                code_table.GDN = TexturePath.Website_Mobile_GDN;
+                code_table.IVD =  TexturePath.Website_Mobile_IVD;
+                code_table.ORC =  TexturePath.Website_Mobile_ORC;
+                code_table.OTL =  TexturePath.Website_Mobile_OTL;
+                code_table.ARC =  TexturePath.Website_Mobile_ARC;
+            }
     
             if (code in code_table) {
+                console.log(code_table[code]);
                 return code_table[code];
             }
         } catch {
@@ -89,12 +100,15 @@ export const LoadGLBFile = async function(p_scene: Scene, path: string, loaderVi
     }
 
 export const ParseOpenseaMetaData = function(raw_json: any) {
-    console.log(raw_json);
     let attributes : OpenseaTraitType[] = raw_json["attributes"];    
     let code_trait = attributes.find(x=>x.trait_type == "Code").value;
 
-    let glb_full_url = raw_json["glb"];
-    glb_full_url = glb_full_url.replace('ipfs://', "");
+    let glb_full_url = raw_json["glbIpfsCid"];
+    // glb_full_url = glb_full_url.replace('ipfs://', "");
+
+    // if (glb_full_url == "" || glb_full_url == undefined) {
+    //     glb_full_url = "bafybeifgfdtkgbved373px7m73mdnz436gd6fximy5gjzum3egd23mcygm";
+    // }
 
     glb_full_url = API.gateway.replace(":id", glb_full_url);
 
@@ -115,6 +129,27 @@ export const FetchMetaData = async function(id: string) {
     return rawjson.json();
 }
 
-export const GetDomainID = function() {
-    return GetRelativeURL(window.location.href);
+export const GetWebOptions = function() {
+    let hash_string = window.location.hash;
+
+    let questionmark_index = hash_string.indexOf("?");
+
+    let id_string = window.location.hash.replace("#/", "");
+
+    if (questionmark_index > 0) {
+        id_string = id_string.substring(0, id_string.indexOf("?"));    
+    }
+
+    let option_string = hash_string.substring(hash_string.indexOf('?') + 1);
+    let params = new URLSearchParams(option_string);
+
+    let options : WebsiteOption = {
+        id : id_string,
+        mode : params.get("mode"),
+        background : params.get("background"),
+        is_website : params.get("mode") == String.WEBSITE_MODE,
+        is_mobile : MobileCheck() || window.innerWidth < window.innerHeight,
+    };
+
+    return options;
 }
