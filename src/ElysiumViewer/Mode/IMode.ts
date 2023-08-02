@@ -33,7 +33,7 @@ export let FreeStyleLerpStruct = function(option: WebsiteOption) : ModeLerpStruc
     let lerpStruct = {
         lerp_target: new Vector3(0, 2.1
             ,0),
-        lerp_alpha: Math.PI * 1.27,
+        lerp_alpha: Math.PI * 0.45,
         lerp_beta: Math.PI * 0.48,
         
         lerp_radius: (option.is_mobile) ? 38 : 30,

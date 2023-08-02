@@ -6,14 +6,13 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ESNX Viewer</title>
-    <script type="module" crossorigin src="./assets/index.6b0b6f40.js"></script>
-    <link rel="stylesheet" href="./assets/index.829f0ee1.css">
+    <script type="module" crossorigin src="./assets/index.41592b13.js"></script>
+    <link rel="stylesheet" href="./assets/index.379ab3da.css">
   </head>
   <body>
     
     <div id="loading_ui">
       <div class="load_container">
-
         <svg  width="256" height="256" id="esnx_logo" data-name="esnx_logo_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
           <defs>
               <linearGradient id="grad1" x1="0%" y1="100%" x2="0%" y2="0%">
@@ -33,7 +32,7 @@
           </svg>
 
           <br>
-          <span>0%</span>
+          <span>FETCHING DATA</span>
       </div>
     </div>
     
@@ -48,36 +47,28 @@
           <div data-simplebar  data-simplebar-direction='rtl' class="animation_container scrollbar_container">
             <span class="selected" data-value="idle.glb">IDLE</span>
             <span data-value="arguing.glb">ARGUING</span>
-            <span data-value="briefing.glb">BREIFING</span>
             <span data-value="cat_walk.glb">CATWALK</span>
-            <span data-value="crane_kick.glb">KICK</span>
-            <span data-value="dance_battle.glb">DANCE</span>    
+            <span data-value="crane_kick.glb">CRANEKICK</span>
             <span data-value="flying_kick.glb">FLYKICK</span>
             <span data-value="grumpy_claw.glb">CLAW</span>    
-
             <span data-value="kung_fu.glb">KUNGFU</span>
-            <span data-value="mr_roboto.glb">ROBOTO</span>
-            <span data-value="ready.glb">READY</span>
+
             <span data-value="robot.glb">ROBOT</span>    
             <span data-value="rolling.glb">ROLLING</span>
             <span data-value="run_hello.glb">HELLO</span>
-            <span data-value="spell_cast.glb">SPELL<br>CAST</span>    
-            <span data-value="swing.glb">SWING</span>   
-
-            <span data-value="maximo_run.glb">RUN</span>    
+            <span data-value="spell_cast.glb">SPELLCAST</span>    
+ 
             <span data-value="maximo_running.glb">RUNNING</span>    
             <span data-value="maximo_falling.glb">FALLING</span>    
-            <span data-value="maximo_baseball_hit.glb">BASEBALL HIT</span>    
-            <span data-value="maximo_breakdance_ready.glb">BREAK DANCE</span>    
-            <span data-value="maximo_joyful_jump.glb">JUMP</span>    
-            <span data-value="maximo_hiphop_dancing.glb">HIPHOP</span>    
-            <span data-value="maximo_hurricane_kick.glb">HURRICANE KICK</span>    
+            <span data-value="maximo_baseball_hit.glb">HOMERUN</span>    
+            <span data-value="maximo_breakdance_ready.glb">BREAKDANCE</span>    
+            <span data-value="maximo_joyful_jump.glb">YATTA</span>    
+ 
+            <span data-value="maximo_hurricane_kick.glb">HURRICANE</span>    
             <span data-value="maximo_martelo.glb">MARTELO</span>    
 
-            <span data-value="maximo_still_male_pose1.glb">FIXED POSE1</span>    
-            <span data-value="maximo_still_male_pose2.glb">FIXED POSE2</span>    
-            <span data-value="maximo_still_male_standing.glb">FIXED POSE3</span>
-            <span data-value="maximo_still_female_standing.glb">FEMALE STAND</span>
+            <span data-value="maximo_still_male_pose1.glb">MATRIX</span>    
+            <span data-value="maximo_still_female_standing.glb">CYNDIBABE</span>
           </div>
           
           <img id="ctrl_refresh_change" src="./textures/icon/refresh.svg">
@@ -108,64 +99,30 @@
 
       <div class="container">
         <section class="camera_ctrl">
-          <h1>CAMERA CONTROL</h1>
+          <h1>CAMERA <br>CONTROL</h1>
 
           <div class="container_row">
             <img src="./textures/icon/info/esnx_mouse - left.svg">
-            <span>ROTATE CAMERA</span>  
+            <span>ROTATE</span>  
           </div>
 
           <div class="container_row">
             <img src="./textures/icon/info/esnx_mouse - middle.svg">
-            <span>ZOOM CAMERA</span>
+            <span>ZOOM</span>
           </div>
 
           <div class="container_row">
             <img src="./textures/icon/info/esnx_mouse - right.svg">
-            <span>MOVE CAMERA</span>
-          </div>
-        </section>
-
-        <section class="icon_ctrl">
-          <h1>ICON</h1>
-
-          <div class="container_row">
-            <img src="./textures/icon/menu.svg">
-            <span>MENU</span>
-          </div>
-
-          <div class="container_row">
-            <img src="./textures/icon/person.svg">
-            <span>POSE</span>
-          </div>
-
-          <div class="container_row">
-            <img src="./textures/icon/refresh.svg">
-            <span>RETURN</span>
-          </div>
-
-          <div class="container_row">
-            <img src="./textures/icon/frame.svg">
-            <span>FRAME</span>
-          </div>
-
-          <div class="container_row">
-            <img src="./textures/icon/screenshot.svg">
-            <span>SCREEN SHOT</span>
-          </div>
-
-          <div class="container_row">
-            <img src="./textures/icon/pause.svg">
-            <span>PAUSE / PLAY</span>
-          </div>
-
-          <div class="container_row">
-            <img src="./textures/icon/info.svg">
-            <span>TUTORIAL</span>
+            <span>MOVE</span>
           </div>
         </section>
       </div>
 
+    </div>
+
+    <div id="screen_shot_container">
+      <p>Right click <br> to save image</p>
+      <img src="" />
     </div>
 
     <canvas id="main_app"></canvas>

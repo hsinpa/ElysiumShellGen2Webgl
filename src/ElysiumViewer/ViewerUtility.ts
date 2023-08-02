@@ -13,7 +13,7 @@ import {OpenseaTraitType, TexturePath, API, OpenseaDataType, WebsiteOption, Stri
 
 export const LoadGLBFile = async function(p_scene: Scene, path: string, loaderViewCallback: LoadingScreenView) {
         //Load mesh
-        let glbPath = "./assets/test_robots/H2208IVDn-B0205IVDn-A0408IVDn-L1005IVDs-EQP06n-x2048.glb";
+        let glbPath = "./assets/test_robots/test-1615.glb";
 
         console.log("LoadGLBFile \n" + path);
 

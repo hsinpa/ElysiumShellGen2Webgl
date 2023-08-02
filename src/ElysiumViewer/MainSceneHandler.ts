@@ -133,17 +133,28 @@ export default class MainSceneHandler {
         this.m_engine.displayLoadingUI();
 
         try {
-            let metadata = await FetchMetaData(this.m_options.id);
-            console.log(metadata);
-            //let metadata = GDNMockSet;
-            let opensea_data = ParseOpenseaMetaData(metadata);
-
-            if (opensea_data.glb == "" || opensea_data.glb == null) {
-                throw new Error(String.IPFS_GLB_NOT_EXIST);
+            let glb_static_link = "./assets/test_robots/test-1615.glb";
+            if (this.m_options.id == "2") {
+                glb_static_link = "./assets/test_robots/test-6773.glb"
+            } else if (this.m_options.id == "3") {
+                glb_static_link = "./assets/test_robots/test-10663.glb"
             }
 
-            this.SetBackgroundScene(this.m_backgroundScene, opensea_data.code);
-            await this.SetMainScene(this.m_engine, this.m_mainScene, opensea_data.glb, this.m_canvasDOM);
+            console.log("ID " + this.m_options.id);
+            //let metadata = await FetchMetaData(this.m_options.id);
+            //console.log(metadata);
+            //let metadata = GDNMockSet;
+            //let opensea_data = ParseOpenseaMetaData(metadata);
+
+            // if (opensea_data.glb == "" || opensea_data.glb == null) {
+            //     throw new Error(String.IPFS_GLB_NOT_EXIST);
+            // }
+
+
+
+
+            this.SetBackgroundScene(this.m_backgroundScene, "GDN");
+            await this.SetMainScene(this.m_engine, this.m_mainScene, glb_static_link, this.m_canvasDOM);
 
             this.m_engine.hideLoadingUI();
 
