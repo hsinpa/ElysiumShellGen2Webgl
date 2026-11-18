@@ -10,10 +10,11 @@ import { Effect } from '@babylonjs/core/Materials/effect';
 import {EmojiTextureArray} from './GeneralStaticFlag';
 import { ShaderMaterial, Texture } from '@babylonjs/core/Materials';
 import { Engine } from '@babylonjs/core/Engines';
+import { Camera } from '@babylonjs/core';
 
 const EmojiShaderName = "EmojiShader";
 const DeltaTime = 0.02;
-const EmojiLastTime = 5000;
+const EmojiLastTime = 4000;
 
 export class EmojiSystem {
     private m_scene : Scene;
@@ -25,6 +26,9 @@ export class EmojiSystem {
     private m_direction = 0;
     private m_mask = 0;
     private m_interval_id = 0;
+
+    private m_active_camera : Camera;
+
     constructor(scene: Scene) {
         this.m_scene = scene;
         
@@ -33,6 +37,8 @@ export class EmojiSystem {
         this.m_shareMat.backFaceCulling = false;
 
         this.m_mesh = this.CreateQuadMesh(this.m_shareMat);
+
+        this.m_active_camera = this.m_scene.activeCamera;
     }
 
     public ShowRandomEmoji(position: Vector3, rotation: Quaternion) {
@@ -55,7 +61,7 @@ export class EmojiSystem {
 
         //this.m_mesh.material  = this.m_shareMat;
         this.m_mesh.position = position;
-        this.m_mesh.rotationQuaternion = rotation;
+        //this.m_mesh.rotationQuaternion = rotation;
         this.m_mesh.scaling = new Vector3(-1, -1, 1);
 
         this.m_mesh.setEnabled(true);
@@ -67,12 +73,17 @@ export class EmojiSystem {
         let mask = this.m_mask + (DeltaTime * this.m_direction);
         this.m_mask = Clamp(mask, 0, 1);
         this.m_shareMat.setFloat(MaterialParameters.Strength, this.m_mask);
+
+        if (this.m_mask > 0.1)
+            this.m_mesh.rotationQuaternion =  Quaternion.Slerp(this.m_mesh.rotationQuaternion, this.m_active_camera.absoluteRotation, 0.2);
     }
 
     private CreateQuadMesh(material: ShaderMaterial) {
         let mesh = MeshBuilder.CreatePlane("emoji_quad", {width: this.m_quad_width, height: this.m_quad_height}, this.m_scene);
         mesh.rotate(new Vector3(1, 0,0), Math.PI);
         mesh.material = material;
+
+        mesh.renderingGroupId = 1;
 
         mesh.setEnabled(false);
         return mesh;

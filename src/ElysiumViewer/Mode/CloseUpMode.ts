@@ -4,6 +4,7 @@ import {Vector3, Quaternion} from '@babylonjs/core/Maths';
 
 import {Lerp, Clamp} from "../../Utility/UtilityFunc";
 import { IMode, ModeLerpHelper, ModeLerpStruct, ModeEnum } from "./IMode";
+import {WebsiteOption} from '../GeneralStaticFlag';
 
 export default class CloseUpMode implements IMode {
     tag: ModeEnum;
